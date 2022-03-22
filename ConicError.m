@@ -12,15 +12,90 @@ K<i> := QuadraticField(-1);
 HasRationalPoint(ChangeRing(q,K));
 
 ///////////////////
-
+//119,w119
 _<x> := PolynomialRing(Rationals());
 f := -(7*x^10-171*x^8+758*x^6+341*x^4+4851*x^2+2401)*(x^10+3*x^8+26*x^6+278*x^4+373*x^2+343);
 C := HyperellipticCurve(f);
 F<x,y> := FunctionField(C);
-phi := iso<C -> C | [x,-y,1],[x,-y,1]>;
-psi := iso<C -> C | [-x,y,1],[-x,y,1]>;
-G := AutomorphismGroup(C,[phi,psi]);
+w119 := iso<C -> C | [x,-y,1],[x,-y,1]>;
+w7 := iso<C -> C | [-x,y,1],[-x,y,1]>;
+G := AutomorphismGroup(C,[w119,w7]);
 Q,m := CurveQuotient(G);
+
+///////////
+A2<x,y> := AffineSpace(Rationals(),2);
+f := -(7*x^10-171*x^8+758*x^6+341*x^4+4851*x^2+2401)*(x^10+3*x^8+26*x^6+278*x^4+373*x^2+343)-y;
+C := Curve(A2,[f]);
+Genus(C);
+HasRationalPoint(Conic(ProjectiveClosure(C)));
+
+//159,194,206
+
+//159
+/*
+_<x> := PolynomialRing(Rationals());
+f := -(81*x^10+207*x^8+874*x^6-130*x^4-11*x^2+3)*(2187*x^10+8389*x^8+8878*x^6+42*x^4-41*x^2+1);
+C := HyperellipticCurve(f);
+F<x,y> := FunctionField(C);
+w159 := iso<C -> C | [x,-y,1],[x,-y,1]>;
+w3 := iso<C -> C | [-x,y,1],[-x,y,1]>;
+G := AutomorphismGroup(C,[w159]);
+G := AutomorphismGroup(C,[w3]);
+Q,m := CurveQuotient(G); //fails
+
+*/
+
+_<x> := PolynomialRing(Rationals());
+f := -(7*x^10-171*x^8+758*x^6+341*x^4+4851*x^2+2401)*(x^10+3*x^8+26*x^6+278*x^4+373*x^2+343);
+coeffs := Coefficients(f);
+newCoeffs := [c : c in coeffs | c ne 0 ];
+g := Polynomial(newCoeffs);
+assert f eq Evaluate(g,x^2);
+
+
+A2<x,y> := AffineSpace(Rationals(),2);
+f := Evaluate(f,x);
+C1 := Curve(A2,[f-y]);
+Genus(C1);
+HasRationalPoint(Conic(ProjectiveClosure(C1)));
+
+g := Evaluate(g,x);
+C2 := Curve(A2,[g-y]);
+Genus(C2);
+HasRationalPoint(Conic(ProjectiveClosure(C2)));
+
+
+
+C3 := Curve(A2,[g-y^2]);
+Genus(C3);//4
+
+//206 is exactly like 159
+
+//194 is more difficult
+
+//try fixed field??
+
+//is there a problem at (6,11)?
+
+
+/////////////////
+_<x> := PolynomialRing(Rationals());
+f := -8*x^20+13*x^18+42*x^16+331*x^14+220*x^12-733*x^10-6646*x^8-19883*x^6-28840*x^4-18224*x^2-4096;
+C := HyperellipticCurve(f);
+F<x,y> := FunctionField(C);
+w206 := iso<C -> C | [x,-y,1],[x,-y,1]>;
+w2 := iso<C -> C | [-x,y,1],[-x,y,1]>;
+w103 := iso<C -> C | [-x,-y,1],[-x,-y,1]>;
+
+G206 := AutomorphismGroup(C,[w206]);
+Q206,m206 := CurveQuotient(G206);
+
+G2 := AutomorphismGroup(C,[w2]);
+Q2,m2 := CurveQuotient(G2);
+
+G103 := AutomorphismGroup(C,[w103]);
+Q103,m103 := CurveQuotient(G103);
+
 
 
 
