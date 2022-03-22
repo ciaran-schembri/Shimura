@@ -258,181 +258,183 @@ MakeShimDatabaseObject:=function(curve_quotients)
     quotient_list;
     quotient_curve:=quotient_list[2];
     wd:=quotient_list[1];
-    genus:=quotient_list[3];
-    quotient_proj:=quotient_list[5];
+    if #wd le 2 then
+      genus:=quotient_list[3];
+      quotient_proj:=quotient_list[5];
 
-      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+        filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
 
-      if genus ge 2 then
-        quotient_rank:=quotient_list[4];
-        f,g:=HyperellipticPolynomials(quotient_curve);
+        if genus ge 2 then
+          quotient_rank:=quotient_list[4];
+          f,g:=HyperellipticPolynomials(quotient_curve);
 
-        Cx,mapx:=SimplifiedModel(quotient_curve);
-        fx:=HyperellipticPolynomials(Cx);
-        RSY:=HasPointsEverywhereLocally(fx,2);
-        if Type(quotient_rank) ne MonStgElt and quotient_rank eq 0 and genus eq 2 then
-          points:=Chabauty0(Jacobian(Cx));
-          chabauty:="Chabauty0";
-        else
-          points:=Points(Cx : Bound:=10000);
-          chabauty:="No Chabauty";
-        end if;
-        quotient_points := [ Eltseq(Inverse(mapx)(p)) :  p in Setseq(points) ];
+          Cx,mapx:=SimplifiedModel(quotient_curve);
+          fx:=HyperellipticPolynomials(Cx);
+          RSY:=HasPointsEverywhereLocally(fx,2);
+          if Type(quotient_rank) ne MonStgElt and quotient_rank eq 0 and genus eq 2 then
+            points:=Chabauty0(Jacobian(Cx));
+            chabauty:="Chabauty0";
+          else
+            points:=Points(Cx : Bound:=10000);
+            chabauty:="No Chabauty";
+          end if;
+          quotient_points := [ Eltseq(Inverse(mapx)(p)) :  p in Setseq(points) ];
 
-        //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
-        Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-        Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
-        ShimModel, ShimGenus, ShimRank,
-                ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface,
-        ShimPoints, ShimChabauty, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions >;");
-        Write(filename,"s := rec< RF | >;\n");
-
-        Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-        Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-        Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-        Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);",f,g));
-        Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-        Write(filename,Sprintf("%o %o;", "s`ShimRank := ", quotient_rank));
-        Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-        Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-        Write(filename,Sprintf("%o %o;", "s`ShimPoints := ", quotient_points));
-        Write(filename,Sprintf("s`ShimChabauty :=%o%o%o;", "\"", chabauty, "\""));
-        Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-
-        if ambient_size eq 3 then
-          Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-          Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-        else
-          Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-          Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-        end if;
-
-        //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-        Write(filename,Sprintf("s`ShimInvolutions := ["));
-        for involution in quotient_list[6][1..#quotient_list[6]-1] do
-          Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-        end for;
-          Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-          Write(filename,"return s;");
-        //iso< top_curve -> top_curve | quotient_list[6,2],quotient_list[6,2] >;
-        //Include pullback function
-        //Include 2-cover descent
-
-      elif genus eq 1 then
-        Cx:="NA";
-        CX<[X]>:=quotient_curve;
-        CX_eqn:=Equations(CX);
-
-        EC:=Jacobian(quotient_curve);
-        //need something different if theres no rational point
-        rank:=Rank(EC);
-        torsion:=TorsionSubgroup(EC);
-        tors_group:=GroupName(torsion);
-        f,g:=HyperellipticPolynomials(EC);
-
-        fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
-        assert IsIsomorphic(EC,EllipticCurve(fx));
-        RSY:=HasPointsEverywhereLocally(fx,2);
-        assert BadPrimes(EC) subset [2] cat PrimeDivisors(disc*level);
-
-        //printf "& & $w_{%o}$ & %o & $\\Z^%o + %o$ & %o & %o & %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), rank, torsion, RSY, ModuliPoint, points, CMpoints, fx;
-        Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-        Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel, ShimAtkinLehner, ShimModel, ShimJacobian, ShimGenus,
-        ShimMordellWeil, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
-        Write(filename,"s := rec< RF | >;\n");
-        Write(filename,Sprintf("PX<[X]>:=ProjectiveSpace(Rationals(),%o);",#X-1));
-
-        Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-        Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-        Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-        Write(filename,Sprintf("s`ShimModel := Curve(PX,%o);",Equations(CX)));
-        Write(filename,Sprintf("s`ShimJacobian := EllipticCurve(Rx!%o,Rx!%o);",f,g));
-        Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-        Write(filename,Sprintf("s`ShimMordellWeil := DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(\"%o\")));",rank,tors_group));
-        Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-        Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-        Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-
-        if ambient_size eq 3 then
-          Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-          Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-        else
-          Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-          Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-        end if;
-        //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-        Write(filename,Sprintf("s`ShimInvolutions := ["));
-        for involution in quotient_list[6][1..#quotient_list[6]-1] do
-          Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-        end for;
-          Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-          Write(filename,"return s;");
-
-      else
-
-        if Type(quotient_curve) eq MonStgElt then
-
-          infinite_points:="empty";
-          RSY:=false;
-          g0equation:="no equation";
-
-          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimEquation, ShimGenus,
-          ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints  >;");
+          //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
+          Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
+          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
+          ShimModel, ShimGenus, ShimRank,
+                  ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface,
+          ShimPoints, ShimChabauty, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions >;");
           Write(filename,"s := rec< RF | >;\n");
-          Write(filename,"P3<X,Y,Z>:=PolynomialRing(Rationals(),3)\n");
 
           Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
           Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
           Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-          Write(filename,Sprintf("%o %o;", "s`ShimEquation := ", g0equation));
+          Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);",f,g));
           Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-          Write(filename,Sprintf("%o %o;", "s`ShimInfinitelyManyPoints := ", infinite_points));
+          Write(filename,Sprintf("%o %o;", "s`ShimRank := ", quotient_rank));
+          Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
+          Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
+          Write(filename,Sprintf("%o %o;", "s`ShimPoints := ", quotient_points));
+          Write(filename,Sprintf("s`ShimChabauty :=%o%o%o;", "\"", chabauty, "\""));
+          Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
+
+          if ambient_size eq 3 then
+            Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
+          else
+            Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
+            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
+          end if;
+
+          //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+          Write(filename,Sprintf("s`ShimInvolutions := ["));
+          for involution in quotient_list[6][1..#quotient_list[6]-1] do
+            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
+          end for;
+            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+            Write(filename,"return s;");
+          //iso< top_curve -> top_curve | quotient_list[6,2],quotient_list[6,2] >;
+          //Include pullback function
+          //Include 2-cover descent
+
+        elif genus eq 1 then
+          Cx:="NA";
+          CX<[X]>:=quotient_curve;
+          CX_eqn:=Equations(CX);
+
+          EC:=Jacobian(quotient_curve);
+          //need something different if theres no rational point
+          rank:=Rank(EC);
+          torsion:=TorsionSubgroup(EC);
+          tors_group:=GroupName(torsion);
+          f,g:=HyperellipticPolynomials(EC);
+
+          fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
+          assert IsIsomorphic(EC,EllipticCurve(fx));
+          RSY:=HasPointsEverywhereLocally(fx,2);
+          assert BadPrimes(EC) subset [2] cat PrimeDivisors(disc*level);
+
+          //printf "& & $w_{%o}$ & %o & $\\Z^%o + %o$ & %o & %o & %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), rank, torsion, RSY, ModuliPoint, points, CMpoints, fx;
+          Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
+          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel, ShimAtkinLehner, ShimModel, ShimJacobian, ShimGenus,
+          ShimMordellWeil, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
+          Write(filename,"s := rec< RF | >;\n");
+          Write(filename,Sprintf("PX<[X]>:=ProjectiveSpace(Rationals(),%o);",#X-1));
+
+          Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
+          Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
+          Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
+          Write(filename,Sprintf("s`ShimModel := Curve(PX,%o);",Equations(CX)));
+          Write(filename,Sprintf("s`ShimJacobian := EllipticCurve(Rx!%o,Rx!%o);",f,g));
+          Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
+          Write(filename,Sprintf("s`ShimMordellWeil := DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(\"%o\")));",rank,tors_group));
           Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
           Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
           Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-          Write(filename,"return s;");
+
+          if ambient_size eq 3 then
+            Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
+          else
+            Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
+            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
+          end if;
+          //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+          Write(filename,Sprintf("s`ShimInvolutions := ["));
+          for involution in quotient_list[6][1..#quotient_list[6]-1] do
+            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
+          end for;
+            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+            Write(filename,"return s;");
 
         else
 
-         Cx:="NA";
-         P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
-         pts:=HasRationalPoint(Conic(quotient_curve));
-         RSY:=pts;
-         if pts eq true then infinite_points:="infty many points"; else infinite_points:="empty"; end if;
-         g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
-         assert BadPrimes(Conic(quotient_curve)) subset [2] cat PrimeDivisors(disc*level);
+          if Type(quotient_curve) eq MonStgElt then
 
-         //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o & %o & $%o$ \\\\ \n", wd[1], Cquo_genus, groupstructure, RSY, ModuliPoint, points, CMpoints, fx;
-         Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimModel, ShimGenus,
-         ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
-         Write(filename,"s := rec< RF | >;\n");
-         Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+            infinite_points:="empty";
+            RSY:=false;
+            g0equation:="no equation";
 
-         Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-         Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-         Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-         Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
-         Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-         Write(filename,Sprintf("s`ShimInfinitelyManyPoints := %o%o%o;", "\"", infinite_points, "\"" ));
-         Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-         Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-         Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
+            Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimEquation, ShimGenus,
+            ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints  >;");
+            Write(filename,"s := rec< RF | >;\n");
+            Write(filename,"P3<X,Y,Z>:=PolynomialRing(Rationals(),3)\n");
 
-         if ambient_size eq 3 then
+            Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
+            Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
+            Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
+            Write(filename,Sprintf("%o %o;", "s`ShimEquation := ", g0equation));
+            Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
+            Write(filename,Sprintf("%o %o;", "s`ShimInfinitelyManyPoints := ", infinite_points));
+            Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
+            Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
+            Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
+            Write(filename,"return s;");
+
+          else
+
+           Cx:="NA";
+           P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
+           pts:=HasRationalPoint(Conic(quotient_curve));
+           RSY:=pts;
+           if pts eq true then infinite_points:="infty many points"; else infinite_points:="empty"; end if;
+           g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
+           assert BadPrimes(Conic(quotient_curve)) subset [2] cat PrimeDivisors(disc*level);
+
+           //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o & %o & $%o$ \\\\ \n", wd[1], Cquo_genus, groupstructure, RSY, ModuliPoint, points, CMpoints, fx;
+           Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimModel, ShimGenus,
+           ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
+           Write(filename,"s := rec< RF | >;\n");
            Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-           Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-         else
-           Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-           Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-         end if;
-         //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-         Write(filename,Sprintf("s`ShimInvolutions := ["));
-         for involution in quotient_list[6][1..#quotient_list[6]-1] do
-           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-         end for;
-           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-           Write(filename,"return s;");
 
+           Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
+           Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
+           Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
+           Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
+           Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
+           Write(filename,Sprintf("s`ShimInfinitelyManyPoints := %o%o%o;", "\"", infinite_points, "\"" ));
+           Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
+           Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
+           Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
+
+           if ambient_size eq 3 then
+             Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+             Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
+           else
+             Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
+             Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
+           end if;
+           //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+           Write(filename,Sprintf("s`ShimInvolutions := ["));
+           for involution in quotient_list[6][1..#quotient_list[6]-1] do
+             Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
+           end for;
+             Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+             Write(filename,"return s;");
+
+        end if;
       end if;
     end if;
   end for;
