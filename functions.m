@@ -176,6 +176,7 @@ DataToQuotientList:=function(curve_data)
   Write(filename_w1,Sprintf("%o %o;", "s`ShimLevel := ", curve_data[2]));
   Write(filename_w1,Sprintf("%o %o;", "s`ShimEquation := ", Cpols));
   Write(filename_w1,Sprintf("%o %o;\n", "s`ShimGenus := ", Genus(C)));
+  Write(filename_w1,"return s;");
 
   automorphisms:=FullAutomorphismListFromData(curve_data);
   //auts_list := [ m[2] : m in automorphisms ];
@@ -306,12 +307,13 @@ MakeShimDatabaseObject:=function(curve_quotients)
           Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
         end if;
 
-        Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+        //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
         Write(filename,Sprintf("s`ShimInvolutions := ["));
         for involution in quotient_list[6][1..#quotient_list[6]-1] do
           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
         end for;
           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+          Write(filename,"return s;");
         //iso< top_curve -> top_curve | quotient_list[6,2],quotient_list[6,2] >;
         //Include pullback function
         //Include 2-cover descent
@@ -358,12 +360,13 @@ MakeShimDatabaseObject:=function(curve_quotients)
           Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
           Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
         end if;
-        Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+        //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
         Write(filename,Sprintf("s`ShimInvolutions := ["));
         for involution in quotient_list[6][1..#quotient_list[6]-1] do
           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
         end for;
           Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+          Write(filename,"return s;");
 
       else
 
@@ -387,6 +390,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
           Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
           Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
           Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
+          Write(filename,"return s;");
 
         else
 
@@ -421,12 +425,13 @@ MakeShimDatabaseObject:=function(curve_quotients)
            Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
          end if;
-         Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+         //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
          Write(filename,Sprintf("s`ShimInvolutions := ["));
          for involution in quotient_list[6][1..#quotient_list[6]-1] do
            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
          end for;
            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
+           Write(filename,"return s;");
 
       end if;
     end if;
