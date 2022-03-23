@@ -189,15 +189,15 @@ DataToQuotientList:=function(curve_data)
     if wd[1] ne [1] then
       auts:=[ a[2] : a in wd[2] ];
 
-        try
+        if wd[1,2] ne curve_data[5] then
            G1:=AutomorphismGroup(Cproj,auts);
            Cquo,proj:=CurveQuotient(G1);
            Cquo_genus:=Genus(Cquo);
-        catch e
-           Cquo:="genus 0 quo of nonhyp curve"; Cquo_genus:=0;
-           infinite_points:="empty"; g0equation:="no equation";
-           proj:="no projection computed";
-        end try;
+        else
+           _,Cquo:=IsGeometricallyHyperelliptic(C);
+           Cquo_genus:=Genus(Cquo);
+           assert Cquo_genus eq 0;
+        end if;
 
         if Cquo_genus ge 2 then
 
@@ -233,7 +233,7 @@ DataToQuotientList:=function(curve_data)
 
         else
 
-          Append(~curve_quotients, <wd[1], Cquo, Cquo_genus,0, proj,[ DefiningEquations(aut) : aut in auts ]>);
+          Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, 0, 0, 0>);
 
         end if;
     end if;
@@ -262,10 +262,45 @@ MakeShimDatabaseObject:=function(curve_quotients)
       genus:=quotient_list[3];
       quotient_proj:=quotient_list[5];
 
-        filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+      Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
+      Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
+      ShimGenus, ShimModel >;");
+      Write(filename,"s := rec< RF | >;\n");
 
-        if genus ge 2 then
-          quotient_rank:=quotient_list[4];
+      Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
+      Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
+      Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
+      Write(filename,Sprintf("%o %o;\n", "s`ShimGenus := ", genus));
+
+      if genus ge 2 then
+        assert Type(quotient_curve) eq CrvHyp;
+        f,g:=HyperellipticPolynomials(quotient_curve);
+        Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);\n",f,g));
+        Write(filename,"return s;\n");
+      elif genus eq 1 then
+        CX<[X]>:=quotient_curve;
+        CX_eqn:=Equations(CX);
+        Write(filename,Sprintf("PX<[X]>:=ProjectiveSpace(Rationals(),%o);",#X-1));
+        Write(filename,Sprintf("s`ShimModel := Curve(PX,%o);\n",Equations(CX)));
+        Write(filename,"return s;\n");
+      else
+        Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+        P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
+        g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
+        Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
+        Write(filename,"return s;\n");
+      end if;
+      end if;
+    end for;
+
+  return "";
+
+end function;
+
+
+
+/*          quotient_rank:=quotient_list[4];
           f,g:=HyperellipticPolynomials(quotient_curve);
 
           Cx,mapx:=SimplifiedModel(quotient_curve);
@@ -281,19 +316,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
           quotient_points := [ Eltseq(Inverse(mapx)(p)) :  p in Setseq(points) ];
 
           //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
-          Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
-          ShimModel, ShimGenus, ShimRank,
-                  ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface,
-          ShimPoints, ShimChabauty, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions >;");
-          Write(filename,"s := rec< RF | >;\n");
-
-          Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-          Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-          Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-          Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);",f,g));
-          Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-          Write(filename,Sprintf("%o %o;", "s`ShimRank := ", quotient_rank));
+          /*Write(filename,Sprintf("%o %o;", "s`ShimRank := ", quotient_rank));
           Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
           Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
           Write(filename,Sprintf("%o %o;", "s`ShimPoints := ", quotient_points));
@@ -434,14 +457,8 @@ MakeShimDatabaseObject:=function(curve_quotients)
              Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
              Write(filename,"return s;");
 
-        end if;
-      end if;
-    end if;
-  end for;
+        end if;*/
 
-  return "";
-
-end function;
 
 
 WriteShimToFile:=function(D,N)

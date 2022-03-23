@@ -3,10 +3,8 @@ command := Sprintf("ls %o", "ShimDB");
 ls := Pipe(command, "");
 filenames := Split(ls, "\n");
 
-atkinlehners:= [ eval Split(Split(file,"w")[2],">")[1] : file in filenames ];
-ParallelSort(~atkinlehners, ~filenames);
-
 for filename in filenames do
+  filename;
   file:=Sprintf("ShimDB/%o",filename);
   FP:=Read(file);
   attr:=eval FP;
