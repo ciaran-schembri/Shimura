@@ -184,9 +184,9 @@ DataToQuotientList:=function(curve_data)
   curve_quotients:=< <curve_data[1],curve_data[2],Cproj > >;
   //<atkin-lehner subgroup H, quotient, rank, projection: X --> X/H >;
   for i in [1..#automorphisms] do
-
+  
     wd:=automorphisms[i];
-    if wd[1] ne [1] then
+    if wd[1] ne [1] and #wd[1] le 2 then
       auts:=[ a[2] : a in wd[2] ];
 
         if wd[1,2] ne curve_data[5] then
