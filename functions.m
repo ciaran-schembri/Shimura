@@ -169,6 +169,7 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
   list:=curve_data[4];
 
   if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
+    print "hyperelliptic case";
     C:=Curve(A2,Cpols);
     Cproj<X,Y,T>:=ProjectiveClosure(C);
     tr, Chyp:=IsHyperelliptic(C);
@@ -176,6 +177,8 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-[1].m",curve_data[1],curve_data[2],Genus(C));
     Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n");
   else
+    print "non-hyperelliptic case";
+    C:=Curve(A2,Cpols);
     C:=Curve(A3,Cpols);
     Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-[1]-g%o.m",curve_data[1],curve_data[2],Genus(C));
@@ -213,28 +216,31 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
         end if;
 
         if Cquo_genus ge 2 then
-
+          print "quotient genus >= 2";
           fx:=HyperellipticPolynomials(SimplifiedModel(ReducedMinimalWeierstrassModel(Cquo)));
           Cx:=HyperellipticCurve(fx);
           assert IsIsomorphic(Cquo,Cx);
           assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
-          try
-            rl, ru := RankBounds(Jacobian(Cx));
-            rl; ru;
-            if rl ne ru then
-              rank := "NA";
+          /*
+            print "rank part";
+            try
+              rl, ru := RankBounds(Jacobian(Cx));
+              rl; ru;
+              if rl ne ru then
+                rank := "NA";
+                //rank := AnalyticRankShimuraCurve(Cx,curve_data[1]*curve_data[2]);
+              else
+                rank:=ru;
+              end if;
+            catch e
+              rank:= "NA";
               //rank := AnalyticRankShimuraCurve(Cx,curve_data[1]*curve_data[2]);
-            else
-              rank:=ru;
-            end if;
-          catch e
-            rank:= "NA";
-            //rank := AnalyticRankShimuraCurve(Cx,curve_data[1]*curve_data[2]);
-          end try;
-          Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, rank,proj, [ DefiningEquations(aut) : aut in auts ]>);
+            end try;
+          */
+          Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>);
 
         elif  Cquo_genus eq 1 then
-
+          print "quotient genus = 1";
           Cx:="NA";
           EC:=Jacobian(Cquo);
           rank:=Rank(EC);
@@ -245,9 +251,7 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>);
 
         else
-
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, 0, 0, 0>);
-
         end if;
     end if;
   end for;
@@ -281,7 +285,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
       Write(filename,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
       Write(filename,"s := rec< RF | >;\n");
-      Write(filename,Sprintf("s`ShimLabel := D%oN%o%o\n", disc, level, sprint(wd)));
+      Write(filename,Sprintf("s`ShimLabel := \"D%oN%o%o\";\n", disc, level, sprint(wd)));
       Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
       Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
       Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
@@ -476,8 +480,11 @@ end function;
 
 
 WriteShimToFile:=function(D,N)
+  print "computing GYData";
   GY:=GYData(D,N);
+  print "making data-quotient list";
   list:=DataToQuotientList(GY);
+  print "making ShimDB object";
   return MakeShimDatabaseObject(list);
 end function;
 
