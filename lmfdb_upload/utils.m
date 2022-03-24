@@ -57,5 +57,10 @@ intrinsic ModelSt(s::Rec) -> MonStgElt
   {}
   C := s`ShimModel;
   //K<nu> := BaseField(C); // will these always be defined over QQ?
-  return sprint(DefiningPolynomial(C));
+  if Type(C) eq SeqEnum then
+    return sprint(C);
+  else
+    CX<[X]>:=C;
+    return sprint(DefiningEquations(CX));
+  end if;
 end intrinsic;
