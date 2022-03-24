@@ -33,22 +33,31 @@ FullAutomorphismListFromData:=function(curve_data)
     list:=curve_data[4];
 
     if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
-      C:=Curve(A2,Cpols);
-      Cproj<X,Y,T>:=ProjectiveClosure(C);
+      //C:=Curve(A2,Cpols);
+      C:=HyperellipticCurve(Evaluate(Cpols[1]);
+      //Cproj<X,Y,T>:=ProjectiveClosure(C);
     else
       C:=Curve(A3,Cpols);
       Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
     end if;
 
+    F<x,y>:=FunctionField(C);
     involutions_init:=[];
     involution_label:=[];
     for w in list do
-      autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
-      Append(~involutions_init,<w[1], autw>);
+      if #Cpols eq 1 then
+        w_init:=eval(w[2]);
+        ww:=w_init cat [1];
+        autw:=iso< C -> C | ww, ww >;
+        Append(~involutions_init,<w[1], autw>);
+      else
+        autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
+        Append(~involutions_init,<w[1], autw>);
+      end if;
     end for;
 
     if #Cpols eq 1 then
-      Append(~involutions_init,<1, ProjectiveClosure(iso< C -> C | [x,y], [x,y]>)>);
+      Append(~involutions_init,<1, iso< C -> C | [x,y,1], [x,y,1]>>);
     else
       Append(~involutions_init,<1, ProjectiveClosure(iso< C -> C | [x1,y1,z1], [x1,y1,z1]>)>);
     end if;
@@ -150,7 +159,7 @@ end function;
 
 
 
-DataToQuotientList:=function(curve_data)
+DataToQuotientList:=function(curve_data : writetofile:=false)
 
   Cpols:=curve_data[3];
   list:=curve_data[4];
@@ -186,7 +195,7 @@ DataToQuotientList:=function(curve_data)
   for i in [1..#automorphisms] do
 
     wd:=automorphisms[i];
-    if wd[1] ne [1] then
+    if wd[1] ne [1] and #wd[1] le 2 then
       auts:=[ a[2] : a in wd[2] ];
 
         if wd[1,2] ne curve_data[5] then
@@ -263,6 +272,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
       quotient_proj:=quotient_list[5];
 
       filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+
       Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
       Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
@@ -291,8 +301,8 @@ MakeShimDatabaseObject:=function(curve_quotients)
         Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
         Write(filename,"return s;\n");
       end if;
-      end if;
-    end for;
+    end if;
+  end for;
 
   return "";
 
