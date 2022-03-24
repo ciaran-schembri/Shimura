@@ -21,29 +21,34 @@ intrinsic sprint(X::.) -> MonStgElt
 end intrinsic;
 
 // functions for writing ShimuraDB properties to text file
+//
 
-intrinsic GenusSt(s::ShimDB) -> MonStgElt
+intrinsic ShimuraLabel(s::Rec) -> MonStgElt
+  {}
+  return sprint(s`ShimLabel);
+end intrinsic;
+
+intrinsic GenusSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimGenus);
 end intrinsic;
 
-intrinsic DiscSt(s::ShimDB) -> MonStgElt
+intrinsic DiscSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimDiscriminant);
 end intrinsic;
 
-intrinsic IndexSt(s::ShimDB) -> MonStgElt
+intrinsic IndexSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimIndex);
 end intrinsic;
 
-intrinsic AtkinLehnerSt(s::ShimDB) -> MonStgElt
+intrinsic AtkinLehnerSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimAtkinLehner);
 end intrinsic;
 
-
-intrinsic ModelSt(s::ShimDB) -> MonStgElt
+intrinsic ModelSt(s::Rec) -> MonStgElt
   {}
   C := s`ShimModel;
   //K<nu> := BaseField(C); // will these always be defined over QQ?

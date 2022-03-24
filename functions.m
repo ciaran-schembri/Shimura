@@ -271,13 +271,13 @@ MakeShimDatabaseObject:=function(curve_quotients)
       genus:=quotient_list[3];
       quotient_proj:=quotient_list[5];
 
-      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
 
       Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-      Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
+      Write(filename,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
       Write(filename,"s := rec< RF | >;\n");
-
+      Write(filename,Sprintf("s`ShimLabel := D%oN%o%o", disc, level, sprint(wd));
       Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
       Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
       Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
