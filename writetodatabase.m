@@ -3,10 +3,11 @@ load "functions.m";
 SetDebugOnError(true);
 SetProfile(true);
 
+
 for item in GY_data do
   disc:=item[1];
   level:=item[2];
-  if disc notin [82,119,159,194,206] then
+  if disc notin [82] then
     WriteShimToFile(disc,level);
   end if;
 end for;

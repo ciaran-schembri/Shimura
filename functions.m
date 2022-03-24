@@ -150,7 +150,7 @@ end function;
 
 
 
-DataToQuotientList:=function(curve_data)
+DataToQuotientList:=function(curve_data : writetofile:=false)
 
   Cpols:=curve_data[3];
   list:=curve_data[4];
@@ -184,7 +184,7 @@ DataToQuotientList:=function(curve_data)
   curve_quotients:=< <curve_data[1],curve_data[2],Cproj > >;
   //<atkin-lehner subgroup H, quotient, rank, projection: X --> X/H >;
   for i in [1..#automorphisms] do
-  
+
     wd:=automorphisms[i];
     if wd[1] ne [1] and #wd[1] le 2 then
       auts:=[ a[2] : a in wd[2] ];
@@ -263,6 +263,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
       quotient_proj:=quotient_list[5];
 
       filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+
       Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
       Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
@@ -291,8 +292,8 @@ MakeShimDatabaseObject:=function(curve_quotients)
         Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
         Write(filename,"return s;\n");
       end if;
-      end if;
-    end for;
+    end if;
+  end for;
 
   return "";
 
