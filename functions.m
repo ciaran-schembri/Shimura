@@ -34,7 +34,7 @@ FullAutomorphismListFromData:=function(curve_data)
 
     if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
       //C:=Curve(A2,Cpols);
-      C:=HyperellipticCurve(Evaluate(Cpols[1]);
+      C:=HyperellipticCurve(Evaluate(Cpols[1]));
       //Cproj<X,Y,T>:=ProjectiveClosure(C);
     else
       C:=Curve(A3,Cpols);
@@ -271,13 +271,13 @@ MakeShimDatabaseObject:=function(curve_quotients)
       genus:=quotient_list[3];
       quotient_proj:=quotient_list[5];
 
-      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,wd);
+      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
 
       Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-      Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
+      Write(filename,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
       Write(filename,"s := rec< RF | >;\n");
-
+      Write(filename,Sprintf("s`ShimLabel := D%oN%o%o\n", disc, level, sprint(wd)));
       Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
       Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
       Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
