@@ -96,6 +96,27 @@ Q2,m2 := CurveQuotient(G2);
 G103 := AutomorphismGroup(C,[w103]);
 Q103,m103 := CurveQuotient(G103);
 
+//////////////////
+_<x> := PolynomialRing(Rationals());
+f := -(x^8+x^7-x^6-4*x^5+x^4+4*x^3-x^2-x+1)*(7*x^8+19*x^7+21*x^6-13*x^4+21*x^2-19*x+7);
+C := HyperellipticCurve(f);
+BadPrimes(C);
+F<x,y> := FunctionField(C);
+w5 := iso<C -> C | [-1/x,y/x^8,1],[-1/x,y/x^8,1]>;
+w95 := iso<C -> C | [x,-y,1],[x,-y,1]>;
+w19 := w5*w95;
+
+G5 := AutomorphismGroup(C,[w5]);
+Q5,m5 := CurveQuotient(G5);
+
+G19 := AutomorphismGroup(C,[w19]);
+Q19,m19 := CurveQuotient(G19);
+
+G95 := AutomorphismGroup(C,[w95]);
+//Q95,m95 := CurveQuotient(G95); //fails
+//we need to use IsGeometricallyHyperelliptic
+_,q := IsGeometricallyHyperelliptic(C);
+
 
 
 

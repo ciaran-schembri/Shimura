@@ -11,6 +11,7 @@ SetDebugOnError(true);
 
 
 A2<x,y>:=AffineSpace(Rationals(),2);
+//R2<x,y> := PolynomialRing(Rationals(),2);
 A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
 
@@ -33,8 +34,11 @@ FullAutomorphismListFromData:=function(curve_data)
     list:=curve_data[4];
 
     if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
-      //C:=Curve(A2,Cpols);
-      C:=HyperellipticCurve(Evaluate(Cpols[1]));
+      C:=Curve(A2,Cpols);
+      R<x> := PolynomialRing(Rationals());
+      ff := R!Evaluate(Cpols[1],[x,0]);
+      C:=HyperellipticCurve(ff);
+
       //Cproj<X,Y,T>:=ProjectiveClosure(C);
     else
       C:=Curve(A3,Cpols);

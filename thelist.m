@@ -1,5 +1,6 @@
-
 A2<x,y>:=AffineSpace(Rationals(),2);
+//R2<x,y> := PolynomialRing(Rationals(),2);
+
 A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 //R<x> := PolynomialRing(Rationals());
 //P<X,Y,Z>:=PolynomialRing(Rationals(),3);
