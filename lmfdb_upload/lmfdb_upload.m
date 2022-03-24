@@ -12,7 +12,6 @@ column_handler := [*
   //<"atkin_lehner", "?", >, //TODO
 *];
 
-
 intrinsic ShimDBToLMFDBrow(s::Rec) -> MonStgElt
   {return string containing one row of data}
   shim_attrs := [fn[3](s) : fn in column_handler];

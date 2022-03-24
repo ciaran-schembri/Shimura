@@ -37,6 +37,12 @@ intrinsic IndexSt(s::ShimDB) -> MonStgElt
   return sprint(s`ShimIndex);
 end intrinsic;
 
+intrinsic AtkinLehnerSt(s::ShimDB) -> MonStgElt
+  {}
+  return sprint(s`ShimAtkinLehner);
+end intrinsic;
+
+
 intrinsic ModelSt(s::ShimDB) -> MonStgElt
   {}
   C := s`ShimModel;
