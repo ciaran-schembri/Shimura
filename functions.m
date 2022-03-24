@@ -315,10 +315,14 @@ intrinsic MakeShimDatabaseObject(curve_quotients::.) -> Any
         Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);\n",f,g));
         Write(filename,"return s;\n");
       elif genus eq 1 then
-        CX<[X]>:=quotient_curve;
-        CX_eqn:=Equations(CX);
-        Write(filename,Sprintf("PX<[X]>:=ProjectiveSpace(Rationals(),%o);",#X-1));
-        Write(filename,Sprintf("s`ShimModel := Curve(PX,%o);\n",Equations(CX)));
+        amb_size:=#Names(Ambient(quotient_curve));
+        if amb_size eq 3 then
+          Write(filename,"P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);");
+          Write(filename,Sprintf("s`ShimModel := Curve(P2,%o);\n",Equations(quotient_curve)));
+        else
+          Write(filename,"P3<X,Y,Z>:=ProjectiveSpace(Rationals(),3);");
+          Write(filename,Sprintf("s`ShimModel := Curve(P3,%o);\n",Equations(quotient_curve)));
+        end if;
         Write(filename,"return s;\n");
       else
         Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");

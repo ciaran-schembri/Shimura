@@ -33,14 +33,14 @@ intrinsic GenusSt(s::Rec) -> MonStgElt
   return sprint(s`ShimGenus);
 end intrinsic;
 
-intrinsic LevelSt(s::Rec) -> MonStgElt
-  {}
-  return sprint(s`ShimLevel);
-end intrinsic;
-
 intrinsic DiscSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimDiscriminant);
+end intrinsic;
+
+intrinsic LevelSt(s::Rec) -> MonStgElt
+  {}
+  return sprint(s`ShimLevel);
 end intrinsic;
 
 intrinsic IndexSt(s::Rec) -> MonStgElt
@@ -57,10 +57,6 @@ intrinsic ModelSt(s::Rec) -> MonStgElt
   {}
   C := s`ShimModel;
   //K<nu> := BaseField(C); // will these always be defined over QQ?
-  if Type(C) eq SeqEnum then
-    return sprint(C);
-  else
     CX<[X]>:=C;
     return sprint(DefiningEquations(CX));
-  end if;
 end intrinsic;
