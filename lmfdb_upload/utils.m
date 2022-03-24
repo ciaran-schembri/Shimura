@@ -50,7 +50,9 @@ end intrinsic;
 
 intrinsic AtkinLehnerSt(s::Rec) -> MonStgElt
   {}
-  return sprint(s`ShimAtkinLehner);
+  sp:=sprint(s`ShimAtkinLehner);
+  ReplaceString(~sp,["[","]"], ["{","}"]);
+  return sp;
 end intrinsic;
 
 intrinsic ModelSt(s::Rec) -> MonStgElt
