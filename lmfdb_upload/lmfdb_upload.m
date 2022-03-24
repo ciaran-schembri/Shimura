@@ -4,11 +4,12 @@
 column_handler := [*
   <"label", "text", ShimuraLabel>,
   <"disc", "integer", DiscSt>,
+  <"level", "integer", LevelSt>,
   <"genus", "smallint", GenusSt>,
   //<"index", "smallint", >, //TODO // don't see ShimIndex attribute in ShimDB
   //<"rank", "integer", >, //TODO // don't see ShimIndex attribute in ShimDB
   //<"gonality", "integer", >, //TODO // don't see ShimIndex attribute in ShimDB
-  <"model", "text", ModelSt>, //TODO
+  <"model", "text", ModelSt>,
   <"atkin_lehner", "integer[]", AtkinLehnerSt>
 *];
 

@@ -33,6 +33,11 @@ intrinsic GenusSt(s::Rec) -> MonStgElt
   return sprint(s`ShimGenus);
 end intrinsic;
 
+intrinsic LevelSt(s::Rec) -> MonStgElt
+  {}
+  return sprint(s`ShimLevel);
+end intrinsic;
+
 intrinsic DiscSt(s::Rec) -> MonStgElt
   {}
   return sprint(s`ShimDiscriminant);

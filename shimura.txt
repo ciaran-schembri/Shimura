@@ -1,0 +1,4 @@
+label|disc|level|genus|model|atkin_lehner
+text|integer|integer|smallint|text|integer[]
+
+D206N1[1,206]|206|1|0|Y^2-X*T|{1,206}
