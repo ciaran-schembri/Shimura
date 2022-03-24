@@ -9,7 +9,7 @@ column_handler := [*
   //<"rank", "integer", >, //TODO // don't see ShimIndex attribute in ShimDB
   //<"gonality", "integer", >, //TODO // don't see ShimIndex attribute in ShimDB
   <"model", "text", ModelSt>, //TODO
-  //<"atkin_lehner", "?", >, //TODO
+  <"atkin_lehner", "integer[]", AtkinLehnerSt>, //TODO
 *];
 
 intrinsic ShimDBToLMFDBrow(s::Rec) -> MonStgElt
