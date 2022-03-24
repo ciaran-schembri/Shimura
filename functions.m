@@ -16,16 +16,18 @@ A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
 
 
-GYData:=function(D,N)
-  for list in GY_data do
+intrinsic GYData(D::RngIntElt,N::RngIntElt) -> Any
+  {}
+  for list in GYList() do
     if list[1] eq D and list[2] eq N then
       return list;
     end if;
   end for;
-end function;
+end intrinsic;
 
 
-FullAutomorphismListFromData:=function(curve_data)
+intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
+  {}
   //Given a set of generators of the automorphism group
   //return all subgroups of the full automorphism group as a list, with Atkin-Lehner descriptions
   //Cpols are the polynomials defining C; list is a list of automorphisms.
@@ -87,7 +89,7 @@ FullAutomorphismListFromData:=function(curve_data)
 
     return involution_groups;
 
-end function;
+end intrinsic;
 
 
 
@@ -104,7 +106,8 @@ end function;
 
 
 
-HasAdelicPointsRSY:=function(D,m)
+intrinsic HasAdelicPointsRSY(D::.,m::.) -> Any
+  {}
   if IsPrime(m) then
      n:=D/m;
      n:=Integers()!n;
@@ -119,10 +122,11 @@ HasAdelicPointsRSY:=function(D,m)
   else
     return "somethings wrong";
   end if;
-end function;
+end intrinsic;
 
 
-AnalyticRankShimuraCurve:=function(C,DN);
+intrinsic AnalyticRankShimuraCurve(C::RngIntElt,DN::RngIntElt) -> Any
+  {}
   Rz<z>:=PolynomialRing(Integers());
 
   M:=ModularForms(DN,2);
@@ -158,13 +162,13 @@ AnalyticRankShimuraCurve:=function(C,DN);
   analytic_rank:= #[ a : a in [ Evaluate(LTaylor(Lser,1,0),0) : Lser in right_Ls[1] ] | Abs(a) lt 0.0000000001 ];
 
   return analytic_rank;
-end function;
+end intrinsic;
 
 
 
 
-DataToQuotientList:=function(curve_data : writetofile:=false)
-
+intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
+  {}
   Cpols:=curve_data[3];
   list:=curve_data[4];
 
@@ -178,19 +182,24 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
     Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n");
   else
     print "non-hyperelliptic case";
-    C:=Curve(A2,Cpols);
     C:=Curve(A3,Cpols);
     Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-[1]-g%o.m",curve_data[1],curve_data[2],Genus(C));
     Write(filename_w1,"A3<x1,y1,z1> := AffineSpace(Rationals(),3);\n");
   end if;
 
-  Write(filename_w1,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,
-  ShimEquation, ShimGenus >;");
+  Write(filename_w1,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,
+  ShimAtkinLehner,  ShimGenus, ShimModel >;");
   Write(filename_w1,"s := rec< RF | >;");
+  Write(filename_w1,Sprintf("s`ShimLabel := \"%o.%o-[1]\";\n", curve_data[1], curve_data[2]));
   Write(filename_w1,Sprintf("%o %o;", "s`ShimDiscriminant := ", curve_data[1]));
   Write(filename_w1,Sprintf("%o %o;", "s`ShimLevel := ", curve_data[2]));
-  Write(filename_w1,Sprintf("%o %o;", "s`ShimEquation := ", Cpols));
+  Write(filename_w1,"s`ShimAtkinLehner := [1];");
+  if #Cpols eq 1 then
+    Write(filename_w1,Sprintf("s`ShimModel := Curve(A2,%o);", Cpols));
+  else
+    Write(filename_w1,Sprintf("s`ShimModel := Curve(A3,%o);", Cpols));
+  end if;
   Write(filename_w1,Sprintf("%o %o;\n", "s`ShimGenus := ", Genus(C)));
   Write(filename_w1,"return s;");
 
@@ -240,6 +249,15 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>);
 
         elif  Cquo_genus eq 1 then
+          amb_size:=#Names(Ambient(Cquo));
+          if amb_size eq 3 then
+            P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
+            Cquo:=Curve(P2,Cquo);
+          else
+            P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);
+            Cquo:=Curve(P3,Cquo);
+          end if;
+
           print "quotient genus = 1";
           Cx:="NA";
           EC:=Jacobian(Cquo);
@@ -257,12 +275,12 @@ DataToQuotientList:=function(curve_data : writetofile:=false)
   end for;
 
   return curve_quotients;
-end function;
+end intrinsic;
 
 
 
-MakeShimDatabaseObject:=function(curve_quotients)
-
+intrinsic MakeShimDatabaseObject(curve_quotients::.) -> Any
+  {}
   CMpoints:=[];
   ModuliPoint:=[];
   disc:=curve_quotients[1,1];
@@ -285,7 +303,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
       Write(filename,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
       ShimGenus, ShimModel >;");
       Write(filename,"s := rec< RF | >;\n");
-      Write(filename,Sprintf("s`ShimLabel := \"D%oN%o%o\";\n", disc, level, sprint(wd)));
+      Write(filename,Sprintf("s`ShimLabel := \"%o.%o-%o\";\n", disc, level, sprint(wd)));
       Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
       Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
       Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
@@ -314,7 +332,7 @@ MakeShimDatabaseObject:=function(curve_quotients)
 
   return "";
 
-end function;
+end intrinsic;
 
 
 
@@ -479,14 +497,15 @@ end function;
 
 
 
-WriteShimToFile:=function(D,N)
+intrinsic WriteShimToFile(D::RngIntElt,N::RngIntElt) -> Any
+  {}
   print "computing GYData";
   GY:=GYData(D,N);
   print "making data-quotient list";
   list:=DataToQuotientList(GY);
   print "making ShimDB object";
   return MakeShimDatabaseObject(list);
-end function;
+end intrinsic;
 
 
 

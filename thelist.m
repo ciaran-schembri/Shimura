@@ -7,6 +7,8 @@ A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 //FFP:=FieldOfFractions(P);
 
 //<D, N, f, < <p,w_p>, <q,w_q> >
+intrinsic GYList() -> Any
+{}
 GY_data:=<
 <
 26,
@@ -310,3 +312,7 @@ GY_data:=<
 39
 >
 >;
+
+return GY_data;
+
+end intrinsic;

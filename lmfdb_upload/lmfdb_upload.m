@@ -19,12 +19,15 @@ intrinsic ShimDBToLMFDBrow(s::Rec) -> MonStgElt
 end intrinsic;
 
 // this is the top-level function
-intrinsic ShimDBToLMFDB(filename::MonStgElt, seq::SeqEnum[ShimDB]) -> Any 
+intrinsic ShimDBToLMFDB(filename::MonStgElt, seq::SeqEnum[Rec]) -> Any
   {return string containing one row of data per map}
   headers := [[col[1] : col in column_handler]];
   headers cat:= [[col[2] : col in column_handler]];
   headers cat:= [[]];
-  return putrecs(filename, headers cat [ShimDBToLMFDBrow(s) : s in seq]);
+  for s in seq do
+    Append(~headers,[ShimDBToLMFDBrow(s)] );
+  end for;
+  return putrecs(filename, headers);
 end intrinsic;
 
 // to generate new data table

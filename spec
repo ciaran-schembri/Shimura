@@ -1,5 +1,7 @@
 {
   read.m
+  functions.m
+  thelist.m
 
   lmfdb_upload
   {

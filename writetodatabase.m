@@ -1,10 +1,9 @@
-load "thelist.m";
-load "functions.m";
+AttachSpec("spec");
 SetDebugOnError(true);
 SetProfile(true);
 
 
-for item in GY_data do
+for item in GYList() do
   disc:=item[1];
   level:=item[2];
   if disc notin [82] then
