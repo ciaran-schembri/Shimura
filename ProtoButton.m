@@ -1,18 +1,19 @@
  _<x> := PolynomialRing(Rationals());
 
-RatFirstAttempt := function(C: CrvHyp)
+intrinsic RatFirstAttempt(Cx::CrvHyp) -> Any
+  {first try at finding rational points}
+  C:=SimplifiedModel(Cx);
 KnownPts := Points(C : Bound:=1000);
 b := false;
-if #KnownPts eq 0 then 
-    C := SimplifiedModel(C);
+if #KnownPts eq 0 then
 	f,_ := HyperellipticPolynomials(C);
 		if HasPointsEverywhereLocally(f,2) eq false then
 		print "it has no points everywhere locally";
 		pts := {};
 		b := true;
-		else 
+		else
 		Hk,_ := TwoCoverDescent(C);
- 			if #Hk eq 0 then 
+ 			if #Hk eq 0 then
  			print "two cover descent works";
  			b := true;
  			pts := {};
@@ -24,7 +25,7 @@ if #KnownPts ge 1 and Genus(C) eq 2 then
 J := Jacobian(C);
 r := RankBounds(J);
 
-if r eq 0 then 
+if r eq 0 then
 	print "Chabauty0 works";
     pts := Chabauty0(J);
 	b := true;
@@ -51,12 +52,12 @@ end if;
 if b then
 return true,pts;
 
-else 
+else
 print "keep looking";
 return false,{};
 end if;
 
-end function;
+end intrinsic;
 
 
 
@@ -64,13 +65,15 @@ end function;
 
 
 
-SmallerRankQuotient := function(C : CrvHyp)
+intrinsic SmallerRankQuotient(Cx::CrvHyp) -> Any
+  {second try at finding rational points with quotients}
+  C:=SimplifiedModel(Cx);
 A := Automorphisms(C);
 
 if #A gt 2 then
   for i in [3..#A] do
   	G := AutomorphismGroup(C,[A[i]]);
-	Q,m := CurveQuotient(G); 
+	Q,m := CurveQuotient(G);
 	r := RankBounds(Jacobian(Q));
     if r lt Genus(Q) then
     	print Q;
@@ -89,24 +92,29 @@ if #A gt 2 then
   if b then
   return true,pts;
   else print "keep looking";
-  	return false,{}; 
+  	return false,{};
 end if;
 end if;
-end function;
+end intrinsic;
 
 
 
 
 
-RatAttempt := function(C: CrvHyp)
+intrinsic RatAttempt(Cx::CrvHyp) -> Any
+  {}
+  C:=SimplifiedModel(Cx);
 b,pts := RatFirstAttempt(C);
 if b then
     return true,pts;
-else 
+else
     b,pts := SmallerRankQuotient(C);
     return b,pts;
 end if;
-end function;
+if not b then
+  return "points not known";
+end if;
+end intrinsic;
 
 /*
 //Tests
@@ -137,4 +145,3 @@ RatAttempt(C6);
 C7 := HyperellipticCurve(x^12+x^4+1);
 SmallerRankQuotient(C7);
 */
-

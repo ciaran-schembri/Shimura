@@ -1,25 +1,27 @@
+AttachSpec("spec");
 
 command := Sprintf("ls %o", "ShimDB");
 ls := Pipe(command, "");
 filenames := Split(ls, "\n");
 
 for filename in filenames do
-  filename;
   file:=Sprintf("ShimDB/%o",filename);
   FP:=Read(file);
   attr:=eval FP;
 
-  if attr`ShimGenus eq 1 then
-    attr`ShimDiscriminant;
-    attr`ShimLevel;
+  if attr`ShimGenus ge 2 then
+    filename;
     X:=attr`ShimModel;
-    XG1:=GenusOneModel(X);
+
+    RatAttempt(X);
+
+    /*XG1:=GenusOneModel(X);
     locally_sol:=IsLocallySolvable(XG1);
     locally_sol;
     if locally_sol eq true then
       Points(X : Bound:=10000);
     end if;
-    print "==================";
+    print "==================";*/
 
   end if;
 end for;
