@@ -74,13 +74,17 @@ if #A gt 2 then
   for i in [3..#A] do
   	G := AutomorphismGroup(C,[A[i]]);
 	Q,m := CurveQuotient(G);
+  QQ,map := SimplifiedModel(Q);
+  if Genus(Q) eq 1 then
+    continue;
+  end if;
 	r := RankBounds(Jacobian(Q));
     if r lt Genus(Q) then
     	print Q;
-    	b,im_pts := RatFirstAttempt(Q);
+    	b,im_pts := RatFirstAttempt(QQ);
     	pts := [];
     	for k in [1..#im_pts] do
-            R := RationalPoints(Difference(Pullback(m,im_pts[k]), BaseScheme(m)));
+            R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
             S:=IndexedSetToSequence(R);
             pts := pts cat S; //TODO: remove dulplicates
         end for;

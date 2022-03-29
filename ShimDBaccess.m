@@ -1,4 +1,5 @@
 AttachSpec("spec");
+SetLogFile("trying.log");
 
 command := Sprintf("ls %o", "ShimDB");
 ls := Pipe(command, "");
@@ -13,8 +14,6 @@ for filename in filenames do
     filename;
     X:=attr`ShimModel;
 
-    RatAttempt(X);
-
     /*XG1:=GenusOneModel(X);
     locally_sol:=IsLocallySolvable(XG1);
     locally_sol;
@@ -22,6 +21,13 @@ for filename in filenames do
       Points(X : Bound:=10000);
     end if;
     print "==================";*/
+
+    print X;
+    try
+    Y := SimplifiedModel(X);
+    RatAttempt(Y);
+    catch e "double check";
+    end try;
 
   end if;
 end for;
