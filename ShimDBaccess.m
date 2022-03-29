@@ -1,3 +1,4 @@
+//Merge Test
 AttachSpec("spec");
 SetLogFile("trying.log");
 
