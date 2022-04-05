@@ -40,7 +40,6 @@ intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
       R<x> := PolynomialRing(Rationals());
       ff := R!Evaluate(Cpols[1],[x,0]);
       C:=HyperellipticCurve(ff);
-
       //Cproj<X,Y,T>:=ProjectiveClosure(C);
     else
       C:=Curve(A3,Cpols);
@@ -177,6 +176,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
     C:=Curve(A2,Cpols);
     Cproj<X,Y,T>:=ProjectiveClosure(C);
     tr, Chyp:=IsHyperelliptic(C);
+    assert tr;
     assert PrimeDivisors(Integers()!Discriminant(Chyp)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-[1].m",curve_data[1],curve_data[2],Genus(C));
     Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n");
@@ -188,8 +188,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
     Write(filename_w1,"A3<x1,y1,z1> := AffineSpace(Rationals(),3);\n");
   end if;
 
-  Write(filename_w1,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,
-  ShimAtkinLehner,  ShimGenus, ShimModel >;");
+  Write(filename_w1,"RF := recformat< n : Integers(), ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel\n >;");
   Write(filename_w1,"s := rec< RF | >;");
   Write(filename_w1,Sprintf("s`ShimLabel := \"%o.%o-[1]\";\n", curve_data[1], curve_data[2]));
   Write(filename_w1,Sprintf("%o %o;", "s`ShimDiscriminant := ", curve_data[1]));
@@ -219,7 +218,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
            Cquo,proj:=CurveQuotient(G1);
            Cquo_genus:=Genus(Cquo);
         else
-           _,Cquo:=IsGeometricallyHyperelliptic(C);
+           _,Cquo,proj:=IsGeometricallyHyperelliptic(C);
            Cquo_genus:=Genus(Cquo);
            assert Cquo_genus eq 0;
         end if;
@@ -252,10 +251,20 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
           amb_size:=#Names(Ambient(Cquo));
           if amb_size eq 3 then
             P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
-            Cquo:=Curve(P2,Cquo);
+            if Type(Cquo) eq CrvEll then
+              _,crvg1,em:= GenusOneModel(3,Cquo);
+              Cquo:=Curve(P2, Equations(crvg1));
+            else
+              Cquo:=Curve(P2, Equations(Cquo));
+            end if;
           else
             P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);
-            Cquo:=Curve(P3,Cquo);
+            if Type(Cquo) eq CrvEll then
+              _,crvg1,em:= GenusOneModel(4,Cquo);
+              Cquo:=Curve(P3, Equations(crvg1));
+            else
+              Cquo:=Curve(P3, Equations(Cquo));
+            end if;
           end if;
 
           print "quotient genus = 1";
@@ -300,8 +309,7 @@ intrinsic MakeShimDatabaseObject(curve_quotients::.) -> Any
       filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
 
       Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-      Write(filename,"RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  ShimAtkinLehner,
-      ShimGenus, ShimModel >;");
+      Write(filename,"RF := recformat< n : Integers(),\n ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel\n >;");
       Write(filename,"s := rec< RF | >;\n");
       Write(filename,Sprintf("s`ShimLabel := \"%o.%o-%o\";\n", disc, level, sprint(wd)));
       Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
@@ -320,7 +328,7 @@ intrinsic MakeShimDatabaseObject(curve_quotients::.) -> Any
           Write(filename,"P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);");
           Write(filename,Sprintf("s`ShimModel := Curve(P2,%o);\n",Equations(quotient_curve)));
         else
-          Write(filename,"P3<X,Y,Z>:=ProjectiveSpace(Rationals(),3);");
+          Write(filename,"P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);");
           Write(filename,Sprintf("s`ShimModel := Curve(P3,%o);\n",Equations(quotient_curve)));
         end if;
         Write(filename,"return s;\n");
@@ -328,7 +336,7 @@ intrinsic MakeShimDatabaseObject(curve_quotients::.) -> Any
         Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
         P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
         g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
-        Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
+        Write(filename,Sprintf("s`ShimModel := Conic(P2,%o); \n", g0equation));
         Write(filename,"return s;\n");
       end if;
     end if;

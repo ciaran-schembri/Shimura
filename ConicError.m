@@ -7,7 +7,7 @@ phi := iso<C -> C | [X,-Y,S,T],[X,-Y,S,T]>;
 G := AutomorphismGroup(C,[phi]);
 Q,m := CurveQuotient(G);
 _,q:=IsGeometricallyHyperelliptic(C);
-HasRationalPoint(q); 
+HasRationalPoint(q);
 K<i> := QuadraticField(-1);
 HasRationalPoint(ChangeRing(q,K));
 
@@ -119,4 +119,6 @@ _,q := IsGeometricallyHyperelliptic(C);
 
 
 
-
+tt
+New Inserted Line
+New Inserted Line
