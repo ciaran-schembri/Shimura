@@ -1,7 +1,12 @@
 Rx<x>:=PolynomialRing(Rationals());
-RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  
-ShimAtkinLehner,
-      ShimGenus, ShimModel >;
+RF := recformat< n : Integers(),
+ ShimLabel,
+ ShimDiscriminant,
+ ShimLevel,
+ ShimAtkinLehner,
+ ShimGenus,
+ ShimModel
+ >;
 s := rec< RF | >;
 
 s`ShimLabel := "111.1-[1,111]";
@@ -12,6 +17,7 @@ s`ShimAtkinLehner :=  [ 1, 111 ];
 s`ShimGenus :=  0;
 
 P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
-s`ShimModel := Conic(P2,Y^2 - X*T);
+s`ShimModel := Conic(P2,Y^2 - X*T); 
+
 return s;
 
