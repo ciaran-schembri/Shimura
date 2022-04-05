@@ -1,0 +1,859 @@
+> 
+> command := Sprintf("ls %o", "ShimDB");
+> ls := Pipe(command, "");
+> filenames := Split(ls, "\n");
+> 
+> for filename in filenames do
+for>   file:=Sprintf("ShimDB/%o",filename);
+for>   FP:=Read(file);
+for>   attr:=eval FP;
+for> 
+for>   if attr`ShimGenus ge 2 then
+for|if>     filename;
+for|if>     X:=attr`ShimModel;
+for|if>     print X;
+for|if>     try
+for|if|try>     Y := SimplifiedModel(X);
+for|if|try>     RatAttempt(Y);
+for|if|try>     catch e "double check";
+for|if|try>     end try;
+for|if> 
+for|if>     /*XG1:=GenusOneModel(X);
+for|if>     locally_sol:=IsLocallySolvable(XG1);
+for|if>     locally_sol;
+for|if>     if locally_sol eq true then
+for|if>       Points(X : Bound:=10000);
+for|if>     end if;
+for|if>     print "==================";*/
+for|if> 
+for|if>   end if;
+for> end for;
+Shim-X(10,11)-g2-[1,10].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -11*x^6 + 13*x^5 + 6*x^4 - 
+    25*x^3 + 6*x^2 + 13*x - 11 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,11)-g2-[1,22].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = x^6 - 2*x^4 - 7*x^3 - 2*x^2 +
+    1 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,11)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 = -8*x^6 + 61*x^5 - 100*x^4 - 83*x^3 + 58*x^2
+    + 60*x - 40 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,11)-g3-[1,11].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^8 - 49*x^6 - 397*x^4 - 
+    1079*x^2 - 22 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,11)-g3-[1,55].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = 2*x^7 + 5*x^6 - 18*x^5 - 
+    30*x^4 + 67*x^3 + 21*x^2 - 41*x + 13 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ -1/4, 3/2, -9/4, 1/4, -1/2, -3/4, -1/4, 
+    -1/2, -1/4 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 2*x^5 + 31*x^4 + 116*x^3 - 
+    43*x^2 + 10*x over Rational Field
+Chabauty0 works
+true [ (-1 : 0 : 1), (1 : 0 : 0) ]
+Shim-X(10,11)-g3-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^8 + 31*x^6 - 117*x^4 - 
+    43*x^2 - 10 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,11)-g5-[1].m
+Curve over Rational Field defined by
+-8*x^12 - 35*x^10 + 30*x^8 + 277*x^6 + 120*x^4 - 560*x^2 - y^2 - 512
+double check
+Shim-X(10,13)-[1]-g3.m
+Curve over Rational Field defined by
+5*x1^4 - 74*x1^2 - y1^2 + 325,
+-2*x1^2 - z1^2 - 25
+double check
+Shim-X(10,13)-g2-[1,26].m
+Hyperelliptic Curve defined by y^2 = -53*x^6 - 50*x^5 - 172*x^4 - 100*x^3 - 
+    172*x^2 - 50*x - 53 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,13)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -3*x^6 + 23*x^5 - 63*x^4 + 
+    72*x^3 - 63*x^2 + 23*x - 3 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,13)-g2-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -13*x^6 - 39*x^5 - 87*x^4
+    - 109*x^3 - 106*x^2 - 58*x - 22 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,19)-[1]-g5.m
+Curve over Rational Field defined by
+-8*x1^6 + 57*x1^4 - 40*x1^2 - y1^2 + 16,
+5*x1^2 - z1^2 - 32
+double check
+Shim-X(10,19)-g2-[1,10].m
+Hyperelliptic Curve defined by y^2 = -2*x^6 + 6*x^5 - 40*x^4 + 70*x^3 - 416*x^2 
+    + 382*x - 94 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,19)-g2-[1,190].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = x^6 - 3*x^5 + x^4 + 2*x^3
+    - 3*x over Rational Field
+keep looking
+MatrixGroup<2, RationalField() |
+    Matrix(RationalField(), 2, 2, [ -1, 1, 0, 1 ]) >
+MatrixGroup<2, RationalField() |
+    Matrix(RationalField(), 2, 2, [ 1, -1, 0, -1 ]) >
+double check
+Shim-X(10,19)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -185*x^6 - 205*x^5 + 121*x^4 
+    + 442*x^3 + 121*x^2 - 205*x - 185 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,19)-g3-[1,19].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -8*x^8 - 185*x^6 - 1425*x^4 -
+    3673*x^2 - 38 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,19)-g3-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^8 + 21*x^6 - 127*x^4 + 
+    135*x^2 - 40 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,19)-g3-[1,95].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2 + 1)*y = x^7 + 5*x^6 + 13*x^5 + 
+    55*x^4 + 91*x^3 + 7*x^2 - 36*x - 12 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ -1, -2, -1, 0, 1, 1, 0, 0, -1 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 2*x^5 + 11*x^4 + 61*x^3 - 
+    137*x^2 + 74*x - 12 over Rational Field
+Chabauty0 works
+true [ (1 : -1 : 0), (1 : 1 : 0) ]
+Shim-X(10,23)-g4-[1,10].m
+Hyperelliptic Curve defined by y^2 = -43*x^10 - 271*x^9 - 704*x^8 - 917*x^7 - 
+    745*x^6 - 528*x^5 - 745*x^4 - 917*x^3 - 704*x^2 - 271*x - 43 over Rational 
+Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g4-[1,115].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -2*x^10 + 21*x^8 - 117*x^6 
+    + 361*x^4 - 552*x^2 + 320 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g4-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2)*y = -172*x^10 + 224*x^9 - 
+    574*x^8 - 78*x^7 - 957*x^6 - 356*x^5 - 2928*x^4 + 1599*x^3 - 3657*x^2 + 
+    1588*x - 940 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g5-[1,23].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2 + 1)*y = 20*x^12 + 120*x^11 + 
+    318*x^10 + 490*x^9 + 451*x^8 + 185*x^7 - 62*x^6 - 94*x^5 + 3*x^4 + 60*x^3 - 
+    29*x - 11 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g5-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^3)*y = -80*x^12 + 652*x^10 - 2135*x^8 + 
+    3670*x^6 - 3690*x^4 + 2212*x^2 - 640 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g5-[1,46].m
+Hyperelliptic Curve defined by y^2 + (x^6 + x^5 + x^4 + x^3)*y = -11*x^12 + 
+    49*x^11 - 254*x^10 + 387*x^9 - 1597*x^8 + 1007*x^7 - 15073*x^6 + 32659*x^5 -
+    142651*x^4 + 231800*x^3 - 454352*x^2 + 374400*x - 300800 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(10,23)-g9-[1].m
+Curve over Rational Field defined by
+-43*x^20 + 318*x^19 - 1071*x^18 + 3014*x^17 - 10540*x^16 + 28266*x^15 - 
+    72217*x^14 + 81478*x^13 - 62765*x^12 - 68732*x^11 + 18840*x^10 + 68732*x^9 -
+    62765*x^8 - 81478*x^7 - 72217*x^6 - 28266*x^5 - 10540*x^4 - 3014*x^3 - 
+    1071*x^2 - 318*x - y^2 - 43
+double check
+Shim-X(111,1)-g3-[1,37].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^3 + x^2 + x + 1)*y = -x^8 - 5*x^7 
+    - 10*x^6 - 10*x^5 - 9*x^4 - 7*x^3 - 4*x^2 - 2*x - 1 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(111,1)-g4-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3 + x^2 + x)*y = -4*x^10 + 
+    4*x^9 - 17*x^8 + 28*x^7 - 42*x^6 + 61*x^5 - 73*x^4 + 57*x^3 - 60*x^2 + 33*x 
+    - 6 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(111,1)-g7-[1].m
+Curve over Rational Field defined by
+-19*x^16 + 44*x^15 + 16*x^14 + 2*x^13 - 150*x^12 - 94*x^11 + 297*x^10 + 170*x^9 
+    - 331*x^8 - 170*x^7 + 297*x^6 + 94*x^5 - 150*x^4 - 2*x^3 + 16*x^2 - 44*x - 
+    y^2 - 19
+double check
+Shim-X(119,1)-g4-[1,7].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^2 + x + 1)*y = -3*x^10 + 
+    3*x^9 + 5*x^8 - x^7 - 17*x^6 - 2*x^5 + 18*x^4 + 6*x^3 - 12*x^2 - 9*x + 4 
+over Rational Field
+two cover descent works
+true {}
+Shim-X(119,1)-g5-[1,17].m
+Hyperelliptic Curve defined by y^2 + (x^6 + x^4 + x^3 + 1)*y = -3*x^12 + 2*x^11 
+    + 20*x^10 - 33*x^8 + 31*x^7 + 64*x^6 - 47*x^5 - 55*x^4 + 50*x^3 + 21*x^2 - 
+    34*x - 13 over Rational Field
+keep looking
+double check
+Shim-X(119,1)-g9-[1].m
+Curve over Rational Field defined by
+-7*x^20 + 150*x^18 - 427*x^16 - 3192*x^14 + 10114*x^12 - 255164*x^10 - 
+    1307614*x^8 - 2945912*x^6 - 3649275*x^4 - 2559466*x^2 - y^2 - 823543
+double check
+Shim-X(134,1)-g3-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2)*y = -19*x^8 + 53*x^7 + 21*x^6 -
+    143*x^5 + 5*x^4 + 143*x^3 + 5*x^2 - 56*x - 16 over Rational Field
+keep looking
+double check
+Shim-X(134,1)-g3-[1,67].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2)*y = 2*x^8 - 2*x^7 - 13*x^6 + 
+    14*x^5 + 20*x^4 - 35*x^3 + 13*x^2 + 32*x - 32 over Rational Field
+keep looking
+double check
+Shim-X(134,1)-g6-[1].m
+Curve over Rational Field defined by
+-19*x^14 - 8*x^13 + 178*x^12 - 138*x^11 - 625*x^10 + 940*x^9 + 383*x^8 - 
+    1486*x^7 + 383*x^6 + 940*x^5 - 625*x^4 - 138*x^3 + 178*x^2 - 8*x - y^2 - 19
+double check
+Shim-X(14,3)-[1]-g3.m
+Curve over Rational Field defined by
+-7*x1^4 + 22*x1^2 - y1^2 + 1,
+-9*x1^2 - z1^2 - 2
+double check
+Shim-X(14,3)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -2*x^6 - 6*x^5 - 21*x^4 -
+    32*x^3 - 34*x^2 - 19*x - 3 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,3)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = -2*x^6 - 6*x^5 + x^4 + 12*x^3 + 83*x^2 + 
+    76*x + 115 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,3)-g2-[1,7].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 7*x^6 + 21*x^5 + 86*x^4 + 
+    137*x^3 + 146*x^2 + 81*x + 27 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,5)-g2-[1,35].m
+Hyperelliptic Curve defined by y^2 = -x^6 + 3*x^5 + 88*x^4 - 181*x^3 + 24*x^2 + 
+    67*x - 23 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,5)-g2-[1,70].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -3*x^6 - 16*x^5 - 10*x^4 + 
+    41*x^3 - 10*x^2 - 16*x - 3 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,5)-g2-[1,7].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -5*x^6 - 3*x^5 - 12*x^4 + 
+    37*x^3 + 3*x^2 + 42*x - 92 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(14,5)-g3-[1].m
+Curve over Rational Field defined by
+-23*x^8 - 180*x^7 - 358*x^6 - 168*x^5 - 677*x^4 + 168*x^3 - 358*x^2 + 180*x - 
+    y^2 - 23
+double check
+Shim-X(146,1)-g3-[1,73].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -x^8 + x^7 - x^6 + 5*x^5 - 
+    x^4 + 5*x^3 - 11*x^2 - 3*x - 11 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(146,1)-g4-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -5*x^10 + x^9 - 4*x^8 + 
+    26*x^7 + 14*x^6 + 43*x^5 - 36*x^4 - 38*x^3 - 110*x^2 - 56*x - 44 over 
+Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(146,1)-g7-[1].m
+Curve over Rational Field defined by
+-11*x^16 + 82*x^15 - 221*x^14 + 214*x^13 + 133*x^12 - 360*x^11 - 170*x^10 + 
+    676*x^9 - 150*x^8 - 676*x^7 - 170*x^6 + 360*x^5 + 133*x^4 - 214*x^3 - 
+    221*x^2 - 82*x - y^2 - 11
+double check
+Shim-X(15,2)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -2*x^6 - 8*x^5 - 9*x^4 - 
+    3*x^3 - 9*x^2 - 8*x - 2 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(15,2)-g2-[1,5].m
+Hyperelliptic Curve defined by y^2 = -3*x^5 + 5*x^4 - x^3 - 37*x^2 + 24*x + 12 
+over Rational Field
+Chabauty0 works
+true {@ (-2 : 0 : 1), (-1 : 0 : 3), (1 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(15,2)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -3*x^6 - 9*x^5 - 26*x^4 -
+    37*x^3 - 47*x^2 - 30*x - 16 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(15,2)-g3-[1].m
+Curve over Rational Field defined by
+-3*x^8 - 10*x^6 - 11*x^4 - 40*x^2 - y^2 - 48
+double check
+Shim-X(159,1)-g4-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^2 + x + 1)*y = -x^10 - 2*x^9
+    - 6*x^8 + 27*x^7 + 31*x^6 - 113*x^5 - 19*x^4 + 141*x^3 - 38*x^2 - 26*x - 1 
+over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(159,1)-g5-[1,53].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3 + x^2 + 1)*y = 3*x^11 + 
+    25*x^10 - 46*x^9 - 483*x^8 + 571*x^7 + 1063*x^6 - 286*x^5 - 1361*x^4 + 
+    1221*x^3 - 437*x^2 + 73*x - 5 over Rational Field
+keep looking
+double check
+Shim-X(159,1)-g9-[1].m
+Curve over Rational Field defined by
+-177147*x^20 - 1132218*x^18 - 4367079*x^16 - 8888824*x^14 - 6650118*x^12 + 
+    1211556*x^10 + 113578*x^8 - 32376*x^6 - 447*x^4 + 134*x^2 - y^2 - 3
+double check
+Shim-X(194,1)-g4-[1,97].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -x^10 - 3*x^9 - 7*x^8 - 
+    19*x^7 - 29*x^6 - 43*x^5 - 61*x^4 - 47*x^3 - 55*x^2 - 24*x - 16 over 
+Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(194,1)-g5-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3 + x^2)*y = -10*x^12 + 
+    78*x^11 - 248*x^10 + 560*x^9 - 1135*x^8 + 1726*x^7 - 2367*x^6 + 2432*x^5 - 
+    2188*x^4 + 1426*x^3 - 794*x^2 + 272*x - 76 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(194,1)-g9-[1].m
+Curve over Rational Field defined by
+-19*x^20 - 92*x^19 - 286*x^18 - 592*x^17 - 921*x^16 - 1016*x^15 - 872*x^14 + 
+    460*x^13 + 1545*x^12 + 1752*x^11 + 34*x^10 - 1752*x^9 + 1545*x^8 - 460*x^7 -
+    872*x^6 + 1016*x^5 - 921*x^4 + 592*x^3 - 286*x^2 + 92*x - y^2 - 19
+double check
+Shim-X(206,1)-g4-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -x^10 + 3*x^9 - 8*x^8 + 
+    16*x^7 - 30*x^6 - 3*x^5 + 8*x^4 + 40*x^3 + 82*x^2 - 64*x - 76 over Rational 
+Field
+it has no points everywhere locally
+true {}
+Shim-X(206,1)-g5-[1,103].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3 + x^2)*y = -2*x^11 + 
+    3*x^10 + 10*x^9 + 82*x^8 + 54*x^7 - 184*x^6 - 1662*x^5 - 4971*x^4 - 7210*x^3
+    - 4556*x^2 - 1024*x over Rational Field
+keep looking
+double check
+Shim-X(21,2)-[1]-g3.m
+Curve over Rational Field defined by
+-9*x1^6 - 89*x1^4 - 179*x1^2 - y1^2 + 21,
+-x1^2 - z1^2 - 3
+double check
+Shim-X(21,2)-g2-[1,14].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 15*x^6 + 18*x^5 + 11*x^4 - 
+    5*x^3 + 11*x^2 + 18*x + 15 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(21,2)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 = -4*x^6 + 7*x^4 + 15*x^3 + 7*x^2 - 4 over 
+Rational Field
+Chabauty0 works
+true {@ (1 : 0 : 2), (2 : 0 : 1) @}
+Shim-X(21,2)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -7*x^5 - 4*x^4 - 15*x^3 - 
+    4*x^2 - 7*x over Rational Field
+Chabauty0 works
+true {@ (0 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(22,3)-g2-[1,22].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -11*x^6 + 33*x^5 - 15*x^4
+    - 26*x^3 + 7*x^2 + 10*x + 2 over Rational Field
+Chabauty0 works
+true {@ (-1 : 0 : 2), (3 : 0 : 2), (1 : 3 : 1), (1 : -3 : 1), (0 : 3 : 1), (0 : 
+-3 : 1) @}
+Shim-X(22,3)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -5*x^6 + 11*x^5 - 25*x^4 + 
+    26*x^3 - 25*x^2 + 11*x - 5 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(22,3)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = -11*x^5 + 18*x^4 - 41*x^3 + 18*x^2 - 11*x 
+over Rational Field
+Chabauty0 works
+true {@ (0 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(22,3)-g3-[1].m
+Curve over Rational Field defined by
+-27*x^8 - 308*x^6 - 2146*x^4 - 308*x^2 - y^2 - 27
+double check
+Shim-X(22,5)-g2-[1,11].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = 5*x^6 + 15*x^5 + 10*x^4 -
+    5*x^3 - 2*x^2 + 3*x - 3 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(22,5)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -x^6 - x^5 - 7*x^4 - 3*x^3 - 
+    7*x^2 - x - 1 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(22,5)-g2-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -11*x^6 + 33*x^5 - 78*x^4
+    + 100*x^3 - 107*x^2 + 61*x - 29 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(22,5)-g3-[1,10].m
+Hyperelliptic Curve defined by y^2 = 11*x^7 - 80*x^6 + 240*x^5 - 362*x^4 + 
+    240*x^3 - 80*x^2 + 11*x over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ 0, 0, -1, 0, -1, 0, -1, 0, 0 ]) >
+Hyperelliptic Curve defined by y^2 = 11*x^5 + 30*x^4 - 37*x^3 + 56*x^2 - 80*x 
+over Rational Field
+Chabauty0 works
+true [ (0 : 0 : 1), (1 : 0 : 0) ]
+Shim-X(22,5)-g3-[1,22].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -3*x^8 - 48*x^6 - 311*x^4 -
+    915*x^2 - 1024 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(22,5)-g3-[1,55].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2)*y = -3*x^8 + 7*x^6 + 9*x^4 + 
+    14*x^2 + 20 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    DiagonalMatrix(RationalField(), [-1, 1, -1]) >
+Hyperelliptic Curve defined by y^2 = -11*x^5 + 30*x^4 + 37*x^3 + 56*x^2 + 80*x 
+over Rational Field
+Chabauty0 works
+true [ (-2 : 0 : 1), (2 : 0 : 1) ]
+Shim-X(22,5)-g5-[1].m
+Curve over Rational Field defined by
+-11*x^12 - 80*x^10 - 240*x^8 - 362*x^6 - 240*x^4 - 80*x^2 - y^2 - 11
+double check
+Shim-X(26,1)-g2-[1].m
+Curve over Rational Field defined by
+-2*x^6 + 19*x^4 - 24*x^2 - y^2 - 169
+double check
+Shim-X(26,3)-[1]-g5.m
+Curve over Rational Field defined by
+x1^6 - 2*x1^4 + 9*x1^2 - y1^2 + 8,
+-8*x1^2 - z1^2 - 3
+double check
+Shim-X(26,3)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -2*x^6 - 2*x^5 - 26*x^4 - 
+    21*x^3 - 111*x^2 - 49*x - 149 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(26,3)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = -2*x^6 + 6*x^5 - 20*x^4 + 30*x^3 - 108*x^2 
+    + 94*x + 46 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(26,3)-g2-[1,78].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -x^5 + 2*x^4 - 2*x^3 + 2*x^2 
+    - x over Rational Field
+Chabauty0 works
+true {@ (1 : -1 : 0), (1 : 1 : 0), (1 : 2 : 1), (1 : -2 : 1), (0 : 1 : 1), (0 : 
+-1 : 1) @}
+Shim-X(26,3)-g3-[1,13].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = 2*x^8 + 57*x^6 + 601*x^4 + 
+    2721*x^2 + 4394 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(26,3)-g3-[1,39].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2 + 1)*y = x^7 + 3*x^6 + 7*x^5 + 
+    19*x^4 + 29*x^3 + 19*x^2 + 6*x - 6 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ -1, -2, -1, 0, 1, 1, 0, 0, -1 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 2*x^5 + 3*x^4 + 16*x^3 - 
+    23*x^2 + 6*x over Rational Field
+Chabauty0 works
+true [ (1 : -1 : 0), (1 : 1 : 0) ]
+Shim-X(26,3)-g3-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^8 + 3*x^6 - 17*x^4 - 
+    23*x^2 - 6 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(35,1)-g2-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^2 + 1)*y = -7*x^5 + x^4 + x^3 + x^2 + 
+    5*x - 4 over Rational Field
+Chabauty0 works
+true {@ (-1 : 0 : 1), (3 : 0 : 4), (1 : 0 : 0) @}
+Shim-X(35,1)-g3-[1].m
+Curve over Rational Field defined by
+-7*x^8 - 100*x^6 - 554*x^4 - 1380*x^2 - y^2 - 7
+double check
+Shim-X(38,1)-g2-[1].m
+Curve over Rational Field defined by
+-16*x^6 - 59*x^4 - 82*x^2 - y^2 - 19
+double check
+Shim-X(39,1)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -2*x^6 - 3*x^5 - 8*x^4 + 
+    3*x^3 + x^2 + 6*x - 4 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(39,1)-g3-[1].m
+Curve over Rational Field defined by
+-7*x^8 + 30*x^7 - 21*x^6 - 48*x^5 + 37*x^4 + 48*x^3 - 21*x^2 - 30*x - y^2 - 7
+double check
+Shim-X(39,2)-g3-[1,13].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^3 + x^2)*y = -x^8 + 4*x^7 - 16*x^6
+    + 28*x^5 - 47*x^4 + 48*x^3 - 46*x^2 + 24*x - 12 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(39,2)-g3-[1,6].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^3 + x^2 + x + 1)*y = x^7 + 3*x^6 +
+    5*x^5 + 5*x^4 + 5*x^3 + 3*x^2 + x over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ 0, 0, -1, 0, -1, 0, -1, 0, 0 ]) >
+double check
+Shim-X(39,2)-g3-[1,78].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^3 + x^2 + x + 1)*y = -2*x^8 + 
+    11*x^7 - 28*x^6 + 20*x^5 - 5*x^4 + 20*x^3 - 28*x^2 + 11*x - 2 over Rational 
+Field
+two cover descent works
+true {}
+Shim-X(39,2)-g4-[1,26].m
+Hyperelliptic Curve defined by y^2 + (x^5 + 1)*y = -2*x^10 - 16*x^9 - 61*x^8 - 
+    135*x^7 - 202*x^6 - 222*x^5 - 202*x^4 - 135*x^3 - 61*x^2 - 16*x - 2 over 
+Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(39,2)-g4-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^5 + 1)*y = -2*x^10 + 22*x^9 - 98*x^8 + 
+    196*x^7 - 157*x^6 + 64*x^5 - 157*x^4 + 196*x^3 - 98*x^2 + 22*x - 2 over 
+Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(39,2)-g4-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3)*y = -4*x^10 - 26*x^9 - 
+    101*x^8 - 240*x^7 - 470*x^6 - 655*x^5 - 796*x^4 - 688*x^3 - 524*x^2 - 240*x 
+    - 96 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(39,2)-g7-[1].m
+Curve over Rational Field defined by
+-7*x^16 - 122*x^15 - 1019*x^14 - 5476*x^13 - 21358*x^12 - 64170*x^11 - 
+    153140*x^10 - 294928*x^9 - 461947*x^8 - 589856*x^7 - 612560*x^6 - 513360*x^5
+    - 341728*x^4 - 175232*x^3 - 65216*x^2 - 15616*x - y^2 - 1792
+double check
+Shim-X(51,1)-g2-[1,17].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^6 - 15*x^5 - 39*x^4 - 
+    21*x^3 + 19*x^2 - 3*x over Rational Field
+Chabauty0 works
+true {@ (-4 : 0 : 1), (-3 : 0 : 1), (0 : 0 : 1) @}
+Shim-X(51,1)-g3-[1].m
+Curve over Rational Field defined by
+-243*x^8 - 964*x^6 - 674*x^4 + 92*x^2 - y^2 - 3
+double check
+Shim-X(55,1)-g2-[1,11].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2 + x)*y = -x^6 - 6*x^4 + x^3 - 
+    10*x^2 - 2*x - 3 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(55,1)-g3-[1].m
+Curve over Rational Field defined by
+-3*x^8 + 2*x^7 + 3*x^6 - 8*x^5 - 3*x^4 + 8*x^3 + 3*x^2 - 2*x - y^2 - 3
+double check
+Shim-X(57,1)-[1]-g3.m
+Curve over Rational Field defined by
+9*x1^4 + 36*x1^3 + 62*x1^2 + 20*x1 - y1^2 + 1,
+-4*x1^2 + 2*x1 - z1^2 - 1
+double check
+Shim-X(57,1)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -2*x^6 + 9*x^5 - 13*x^4 - 
+    6*x^3 + 12*x^2 - 6*x - 1 over Rational Field
+Chabauty0 works
+true {@ (-1 : 0 : 1) @}
+Shim-X(58,1)-g2-[1].m
+Curve over Rational Field defined by
+-2*x^6 - 78*x^4 - 862*x^2 - y^2 - 1682
+double check
+Shim-X(6,11)-g2-[1,11].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -5*x^6 + 89*x^5 - 570*x^4 + 
+    1334*x^3 - 570*x^2 + 89*x - 5 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,11)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -6*x^6 - 18*x^5 + 9*x^4 +
+    48*x^3 - 8*x^2 - 35*x - 5 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,11)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2)*y = -5*x^6 + 15*x^5 - 18*x^4 - 
+    50*x^3 + 35*x^2 + 36*x - 24 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,11)-g3-[1].m
+Curve over Rational Field defined by
+-19*x^8 - 166*x^7 - 439*x^6 - 166*x^5 + 612*x^4 + 166*x^3 - 439*x^2 + 166*x - 
+    y^2 - 19
+double check
+Shim-X(6,17)-[1]-g3.m
+Curve over Rational Field defined by
+17*x1^4 - 10*x1^2 - y1^2 + 9,
+-3*x1^2 - z1^2 - 16
+double check
+Shim-X(6,17)-g2-[1,17].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -51*x^6 + 153*x^5 - 826*x^4 +
+    1396*x^3 - 3643*x^2 + 2970*x - 4386 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,17)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -5*x^6 + 3*x^5 - 44*x^4 - 
+    53*x^3 - 44*x^2 + 3*x - 5 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,17)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = -9*x^6 - 27*x^5 - 94*x^4 - 143*x^3 - 
+    446*x^2 - 379*x - 321 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,19)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -19*x^6 - 57*x^5 - 57*x^4 - 
+    19*x^3 + 22*x^2 + 22*x - 10 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,19)-g2-[1,38].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -19*x^6 + 57*x^5 + 19*x^4
+    - 134*x^3 - 22*x^2 + 97*x + 38 over Rational Field
+Chabauty0 works
+true {@ (-1 : 0 : 2), (3 : 0 : 2) @}
+Shim-X(6,19)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = 19*x^5 + 210*x^4 + 625*x^3 + 210*x^2 + 19*x
+over Rational Field
+Chabauty0 works
+true {@ (0 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(6,19)-g3-[1].m
+Curve over Rational Field defined by
+-19*x^8 + 210*x^6 - 625*x^4 + 210*x^2 - y^2 - 19
+double check
+Shim-X(6,29)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 = -24*x^6 - 36*x^5 + 74*x^4 + 89*x^3 - 41*x^2
+    - 32*x - 52 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,29)-g2-[1,58].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -x^6 + 6*x^5 - 16*x^4 + 
+    18*x^3 - 16*x^2 + 6*x - 1 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,29)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x + 1)*y = -64*x^6 - 192*x^5 + 
+    155*x^4 + 630*x^3 - 210*x^2 - 557*x + 219 over Rational Field
+two cover descent works
+true {}
+Shim-X(6,29)-g3-[1,29].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -16*x^8 + 523*x^6 - 6131*x^4 
+    + 29845*x^2 - 48778 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,29)-g3-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -6*x^8 + 21*x^6 + 41*x^4 - 
+    117*x^2 - 144 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,29)-g3-[1,87].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -12*x^8 + 24*x^7 + 34*x^6 - 
+    72*x^5 - 17*x^4 + 48*x^3 - 24*x^2 + 5*x + 13 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ -1, 1, -1/4, 0, 1, -1/2, 0, 0, -1 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 6*x^5 + 21*x^4 - 42*x^3 - 
+    117*x^2 + 144*x over Rational Field
+Chabauty0 works
+true [ (-1/2 : 0 : 1), (1 : 0 : 1) ]
+Shim-X(6,29)-g5-[1].m
+Curve over Rational Field defined by
+-64*x^12 + 813*x^10 - 3066*x^8 + 4597*x^6 - 12264*x^4 + 13008*x^2 - y^2 - 4096
+double check
+Shim-X(6,31)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -x^6 - 3*x^5 + x^4 - 29*x^3 -
+    99*x^2 + 118*x - 31 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,31)-g2-[1,6].m
+Hyperelliptic Curve defined by y^2 = -43*x^6 - 233*x^5 - 258*x^4 + 107*x^3 - 
+    258*x^2 - 233*x - 43 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,31)-g2-[1,93].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 8*x^6 + 24*x^5 + 9*x^4 - 
+    22*x^3 - 8*x^2 + 7*x - 1 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,31)-g3-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -6*x^8 + 94*x^6 - 523*x^4 + 
+    1198*x^2 - 972 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,31)-g3-[1,31].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^2 + 1)*y = -11*x^8 - 69*x^7 - 
+    134*x^6 - 96*x^5 - 103*x^4 - 96*x^3 - 134*x^2 - 69*x - 11 over Rational 
+Field
+it has no points everywhere locally
+true {}
+Shim-X(6,31)-g3-[1,62].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -60*x^8 + 36*x^7 + 155*x^6 - 
+    473*x^5 - 191*x^4 + 847*x^3 - 88*x^2 - 432*x + 162 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ -1, 0, 0, -2/3, 1, 0, -4/9, 4/3, -1 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 6*x^5 + 4*x^4 - 69*x^3 - 
+    35*x^2 + 141*x - 63 over Rational Field
+Chabauty0 works
+true [ (-1 : 0 : 1), (3/5 : 0 : 1) ]
+Shim-X(6,31)-g5-[1].m
+Curve over Rational Field defined by
+-243*x^12 + 11882*x^10 - 177701*x^8 + 803948*x^6 - 1599309*x^4 + 962442*x^2 - 
+    y^2 - 177147
+double check
+Shim-X(6,37)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 = -40*x^6 + 4*x^5 - 30*x^4 + 95*x^3 - 30*x^2 
+    + 4*x - 40 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,37)-g2-[1,37].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -17*x^6 + 22*x^5 - 60*x^4 + 
+    45*x^3 - 60*x^2 + 22*x - 17 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,37)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + 1)*y = -7*x^6 - 27*x^5 + 104*x^3 - 
+    27*x - 7 over Rational Field
+two cover descent works
+true {}
+Shim-X(6,37)-g3-[1,111].m
+Hyperelliptic Curve defined by y^2 + (x^2)*y = 20*x^8 + 48*x^7 + 30*x^6 - 12*x^5
+    - 89*x^4 - 12*x^3 + 30*x^2 + 48*x + 20 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    Matrix(RationalField(), 3, 3, [ 0, 0, -1, 0, -1, 0, -1, 0, 0 ]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 5*x^6 + 33*x^5 + 46*x^4 - 
+    41*x^3 - 50*x^2 - 15*x + 21 over Rational Field
+Chabauty0 works
+true [ (-2 : 0 : 1), (-1/2 : 0 : 1) ]
+Shim-X(6,37)-g3-[1,6].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -144*x^8 - 929*x^6 - 2245*x^4
+    - 2411*x^2 - 972 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(6,37)-g3-[1,74].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x)*y = -16*x^8 + 351*x^6 - 1721*x^4 
+    + 3153*x^2 - 148 over Rational Field
+keep looking
+MatrixGroup<3, RationalField() |
+    DiagonalMatrix(RationalField(), [-1, 1, -1]) >
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 5*x^6 + 33*x^5 + 46*x^4 - 
+    41*x^3 - 50*x^2 - 15*x + 21 over Rational Field
+Chabauty0 works
+true [ (-4 : 0 : 1), (4 : 0 : 1) ]
+Shim-X(6,37)-g5-[1].m
+Curve over Rational Field defined by
+-4096*x^12 - 18480*x^10 - 40200*x^8 - 51595*x^6 - 40200*x^4 - 18480*x^2 - y^2 - 
+    4096
+double check
+Shim-X(62,1)-g2-[1,31].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 2*x^5 - x^4 - x^3 - 2*x^2 + x
+    + 5 over Rational Field
+Chabauty0 works
+true {@ (-1 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(62,1)-g3-[1].m
+Curve over Rational Field defined by
+-64*x^8 - 99*x^6 - 90*x^4 - 43*x^2 - y^2 - 8
+double check
+Shim-X(69,1)-g2-[1,23].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 3*x^5 - 11*x^4 + 13*x^3 + 
+    13*x^2 - 1 over Rational Field
+Chabauty0 works
+true {@ (1 : 0 : 4), (1 : 0 : 0) @}
+Shim-X(69,1)-g3-[1].m
+Curve over Rational Field defined by
+-243*x^8 + 1268*x^6 - 666*x^4 - 2268*x^2 - y^2 - 2187
+double check
+Shim-X(74,1)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -6*x^6 - 16*x^5 - 8*x^4 - 
+    8*x^3 - 7*x^2 + 17*x - 5 over Rational Field
+Chabauty0 works
+true {@ (-5 : 0 : 3) @}
+Shim-X(74,1)-g2-[1,37].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -x^6 + x^5 + 2*x^4 - 4*x^3 - 
+    x^2 + 4*x over Rational Field
+Chabauty0 works
+true {@ (0 : 0 : 1) @}
+Shim-X(74,1)-g4-[1].m
+Curve over Rational Field defined by
+-2*x^10 + 47*x^8 - 328*x^6 + 946*x^4 - 4158*x^2 - y^2 - 1369
+double check
+Shim-X(86,1)-g2-[1,2].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -x^6 - 5*x^5 - x^4 + 10*x^3 -
+    24*x^2 - 26*x - 6 over Rational Field
+Chabauty0 works
+true {@ (-3 : 0 : 1) @}
+Shim-X(86,1)-g2-[1,43].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = 2*x^6 - 2*x^5 - 11*x^4 + 
+    6*x^3 + 20*x^2 - 7*x - 11 over Rational Field
+Chabauty0 works
+true {@ (2 : 0 : 1) @}
+Shim-X(86,1)-g4-[1].m
+Curve over Rational Field defined by
+-16*x^10 + 245*x^8 - 756*x^6 - 1506*x^4 - 740*x^2 - y^2 - 43
+double check
+Shim-X(87,1)-g2-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x + 1)*y = -x^6 - 7*x^4 + 16*x^3 + 
+    5*x^2 - 16*x - 4 over Rational Field
+two cover descent works
+true {}
+Shim-X(87,1)-g3-[1,29].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2 + 1)*y = 3*x^8 + 18*x^7 + 70*x^6
+    + 93*x^5 - 36*x^4 - 81*x^3 + 23*x^2 + 14*x - 5 over Rational Field
+keep looking
+double check
+Shim-X(87,1)-g5-[1].m
+Curve over Rational Field defined by
+-243*x^12 + 1178*x^10 - 7157*x^8 - 26548*x^6 - 29421*x^4 - 13446*x^2 - y^2 - 
+    2187
+double check
+Shim-X(93,1)-[1]-g5.m
+Curve over Rational Field defined by
+9*x1^6 - 18*x1^5 - 25*x1^4 - 12*x1^3 + 71*x1^2 + 30*x1 - y1^2 + 9,
+-4*x1^2 - 6*x1 - z1^2 - 9
+double check
+Shim-X(93,1)-g2-[1,93].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x + 1)*y = x^3 + x^2 - 2*x over 
+Rational Field
+keep looking
+double check
+Shim-X(93,1)-g3-[1,3].m
+Hyperelliptic Curve defined by y^2 + (x^3 + x^2 + 1)*y = -x^8 + 2*x^7 - 10*x^6 -
+    29*x^5 - 21*x^4 - 35*x^3 - 28*x^2 - 9*x - 13 over Rational Field
+two cover descent works
+true {}
+Shim-X(94,1)-g2-[1,47].m
+Hyperelliptic Curve defined by y^2 + (x^2 + x)*y = -2*x^5 - 3*x^4 - x^3 - 2*x^2 
+    + 7*x - 3 over Rational Field
+Chabauty0 works
+true {@ (-2 : 0 : 1), (1 : 0 : 0) @}
+Shim-X(94,1)-g3-[1].m
+Curve over Rational Field defined by
+-8*x^8 + 69*x^6 - 234*x^4 + 381*x^2 - y^2 - 256
+double check
+Shim-X(95,1)-g3-[1,5].m
+Hyperelliptic Curve defined by y^2 + (x^4 + x^3 + x^2 + x + 1)*y = -2*x^8 + 
+    6*x^7 - 23*x^6 + 38*x^5 - 60*x^4 + 45*x^3 - 31*x^2 + 3*x - 11 over Rational 
+Field
+it has no points everywhere locally
+true {}
+Shim-X(95,1)-g4-[1,19].m
+Hyperelliptic Curve defined by y^2 + (x^5 + x^4 + x^3 + x^2 + x)*y = -2*x^10 + 
+    6*x^9 - 30*x^8 + 64*x^7 - 149*x^6 + 201*x^5 - 266*x^4 + 187*x^3 - 132*x^2 + 
+    14*x - 43 over Rational Field
+it has no points everywhere locally
+true {}
+Shim-X(95,1)-g7-[1].m
+Curve over Rational Field defined by
+-7*x^16 - 26*x^15 - 33*x^14 + 26*x^13 + 103*x^12 + 50*x^11 - 124*x^10 - 112*x^9 
+    + 79*x^8 + 112*x^7 - 124*x^6 - 50*x^5 + 103*x^4 - 26*x^3 - 33*x^2 + 26*x - 
+    y^2 - 7
+double check
