@@ -1,7 +1,12 @@
 Rx<x>:=PolynomialRing(Rationals());
-RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,  
-ShimAtkinLehner,
-      ShimGenus, ShimModel >;
+RF := recformat< n : Integers(),
+ ShimLabel,
+ ShimDiscriminant,
+ ShimLevel,
+ ShimAtkinLehner,
+ ShimGenus,
+ ShimModel
+ >;
 s := rec< RF | >;
 
 s`ShimLabel := "94.1-[1,2]";
@@ -11,10 +16,10 @@ s`ShimLevel :=  1;
 s`ShimAtkinLehner :=  [ 1, 2 ];
 s`ShimGenus :=  1;
 
-PX<[X]>:=ProjectiveSpace(Rationals(),3);
-s`ShimModel := Curve(PX,[
-X[2]^2 - X[1]*X[3],
-32*X[1]^2 + 276*X[1]*X[2] + 936*X[2]^2 + 1524*X[2]*X[3] + 1024*X[3]^2 + X[4]^2
+P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);
+s`ShimModel := Curve(P3,[
+Y^2 - X*Z,
+32*X^2 + 276*X*Y + 936*Y^2 + 1524*Y*Z + 1024*Z^2 + T^2
 ]);
 
 return s;

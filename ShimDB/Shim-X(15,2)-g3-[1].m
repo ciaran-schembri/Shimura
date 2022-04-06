@@ -1,7 +1,12 @@
 A2<x,y>:=AffineSpace(Rationals(),2);
 
-RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,
-  ShimAtkinLehner,  ShimGenus, ShimModel >;
+RF := recformat< n : Integers(), ShimLabel,
+ ShimDiscriminant,
+ ShimLevel,
+ ShimAtkinLehner,
+ ShimGenus,
+ ShimModel
+ >;
 s := rec< RF | >;
 s`ShimLabel := "15.2-[1]";
 
@@ -16,8 +21,13 @@ s`ShimGenus :=  3;
 return s;
 A2<x,y>:=AffineSpace(Rationals(),2);
 
-RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,
-  ShimAtkinLehner,  ShimGenus, ShimModel >;
+RF := recformat< n : Integers(), ShimLabel,
+ ShimDiscriminant,
+ ShimLevel,
+ ShimAtkinLehner,
+ ShimGenus,
+ ShimModel
+ >;
 s := rec< RF | >;
 s`ShimLabel := "15.2-[1]";
 

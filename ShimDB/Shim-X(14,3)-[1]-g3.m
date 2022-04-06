@@ -1,7 +1,12 @@
 A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
-RF := recformat< n : Integers(), ShimLabel, ShimDiscriminant, ShimLevel,
-  ShimAtkinLehner,  ShimGenus, ShimModel >;
+RF := recformat< n : Integers(), ShimLabel,
+ ShimDiscriminant,
+ ShimLevel,
+ ShimAtkinLehner,
+ ShimGenus,
+ ShimModel
+ >;
 s := rec< RF | >;
 s`ShimLabel := "14.3-[1]";
 
