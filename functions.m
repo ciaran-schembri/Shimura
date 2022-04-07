@@ -210,7 +210,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   for i in [1..#automorphisms] do
 
     wd:=automorphisms[i];
-    if wd[1] ne [1] and #wd[1] le 2 then
+    if wd[1] ne [1] then
       auts:=[ a[2] : a in wd[2] ];
 
         if wd[1,2] ne curve_data[5] then
