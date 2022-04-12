@@ -10,10 +10,6 @@
 SetDebugOnError(true);
 
 
-A2<x,y>:=AffineSpace(Rationals(),2);
-//R2<x,y> := PolynomialRing(Rationals(),2);
-A3<x1,y1,z1> := AffineSpace(Rationals(),3);
-
 
 
 intrinsic GYData(D::RngIntElt,N::RngIntElt) -> Any
@@ -31,62 +27,80 @@ intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
   //Given a set of generators of the automorphism group
   //return all subgroups of the full automorphism group as a list, with Atkin-Lehner descriptions
   //Cpols are the polynomials defining C; list is a list of automorphisms.
+  A2<x,y>:=AffineSpace(Rationals(),2);
+  A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
-    Cpols:=curve_data[3];
-    list:=curve_data[4];
+  level:=curve_data[2];
+  Cpols:=curve_data[3];
+  list:=curve_data[4];
 
-    if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
-      C:=Curve(A2,Cpols);
-      R<x> := PolynomialRing(Rationals());
-      ff := R!Evaluate(Cpols[1],[x,0]);
-      C:=HyperellipticCurve(ff);
-      //Cproj<X,Y,T>:=ProjectiveClosure(C);
-    else
-      C:=Curve(A3,Cpols);
-      Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
-    end if;
+  if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
+    C:=Curve(A2,Cpols);
+    R<x> := PolynomialRing(Rationals());
+    ff := R!Evaluate(Cpols[1],[x,0]);
+    C:=HyperellipticCurve(ff);
+    //Cproj<X,Y,T>:=ProjectiveClosure(C);
+  else
+    C:=Curve(A3,Cpols);
+    Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
+  end if;
 
-    F<x,y>:=FunctionField(C);
-    involutions_init:=[];
-    involution_label:=[];
-    for w in list do
-      if #Cpols eq 1 then
-        w_init:=eval(w[2]);
-        ww:=w_init cat [1];
-        autw:=iso< C -> C | ww, ww >;
-        Append(~involutions_init,<w[1], autw>);
-      else
-        autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
-        Append(~involutions_init,<w[1], autw>);
-      end if;
-    end for;
-
+  F<x,y>:=FunctionField(C);
+  involutions_init:=[];
+  involution_label:=[];
+  for w in list do
     if #Cpols eq 1 then
-      Append(~involutions_init,<1, iso< C -> C | [x,y,1], [x,y,1]>>);
+      w_init:=eval(w[2]);
+      ww:=w_init cat [1];
+      autw:=iso< C -> C | ww, ww >;
+      Append(~involutions_init,<w[1], autw>);
     else
-      Append(~involutions_init,<1, ProjectiveClosure(iso< C -> C | [x1,y1,z1], [x1,y1,z1]>)>);
+      autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
+      Append(~involutions_init,<w[1], autw>);
     end if;
+  end for;
 
-    involutions_init:=Setseq(Subsets(Set(involutions_init)));  //make the set of all possible subsets of involutions to compose
+  if #Cpols eq 1 then
+    Append(~involutions_init,<1, iso< C -> C | [x,y,1], [x,y,1]>>);
+  else
+    Append(~involutions_init,<1, ProjectiveClosure(iso< C -> C | [x1,y1,z1], [x1,y1,z1]>)>);
+  end if;
 
-    //This creates all individual involutions
-    involutions:=Setseq(Set([ <SquareFreeFactorization(&*[ w[1] : w in SetToIndexedSet(W) ]), &*[ w[2] : w in SetToIndexedSet(W) ]> : W in involutions_init | not(IsEmpty(W)) ]));
+  involutions_init:=Setseq(Subsets(Set(involutions_init)));  //make the set of all possible subsets of involutions to compose
 
-    assert #involutions eq #Divisors(curve_data[1]*curve_data[2]);
-    quotient_names:=[ w[1] : w in involutions ];
-    ParallelSort(~quotient_names, ~involutions);
-    //Remove(~involutions,1);
+  //This creates all individual involutions
+  involutions:=Setseq(Set([ <SquareFreeFactorization(&*[ w[1] : w in SetToIndexedSet(W) ]), &*[ w[2] : w in SetToIndexedSet(W) ]> : W in involutions_init | not(IsEmpty(W)) ]));
 
-    //Create subgroups of automorphisms from the list of involutions.
-    involution_subsets := [ Setseq(A) : A in Setseq(Subsets(Set(involutions))) | #A ne 0 ];
-    involution_groups_init := [ A : A in involution_subsets | IsDivisibleBy(#involutions, #A) and 1 in [a[1] : a in A] ];
+  assert #involutions eq #Divisors(curve_data[1]*curve_data[2]);
+  quotient_names:=[ w[1] : w in involutions ];
+  ParallelSort(~quotient_names, ~involutions);
+  //Remove(~involutions,1);
 
-    involution_groups:=[];
-    for A in involution_groups_init do
-      Append(~involution_groups, <Sort([ B[1] : B in A ]), A>);
-    end for;
+  //Create subgroups of automorphisms from the list of involutions.
+  involution_subsets := [ Setseq(A) : A in Setseq(Subsets(Set(involutions))) | #A ne 0 ];
+  involution_sets_init := [ A : A in involution_subsets | IsDivisibleBy(#involutions, #A) and 1 in [a[1] : a in A] ];
 
-    return involution_groups;
+  involution_groups_init:=[];
+  for list in involution_sets_init do
+    auts := [ a[2] : a in list];
+    aut_group:=AutomorphismGroup(C,auts);
+    if #auts eq #aut_group then
+      Append(~involution_groups_init,list);
+    end if;
+  end for;
+
+  involution_groups:=[];
+  for A in involution_groups_init do
+    Append(~involution_groups, <Sort([ B[1] : B in A ]), A>);
+  end for;
+
+  if level eq 1 then
+    assert #involution_groups eq 5;
+  else
+    assert #involution_groups eq 16;
+  end if;
+
+  return involution_groups;
 
 end intrinsic;
 
@@ -171,19 +185,22 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   Cpols:=curve_data[3];
   list:=curve_data[4];
 
+  A2<x,y>:=AffineSpace(Rationals(),2);
+  A3<x1,y1,z1> := AffineSpace(Rationals(),3);
+
   if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
     print "hyperelliptic case";
     C:=Curve(A2,Cpols);
-    Cproj<X,Y,T>:=ProjectiveClosure(C);
-    tr, Chyp:=IsHyperelliptic(C);
-    assert tr;
-    assert PrimeDivisors(Integers()!Discriminant(Chyp)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
+    R<x> := PolynomialRing(Rationals());
+    ff := R!Evaluate(Cpols[1],[x,0]);
+    C:=HyperellipticCurve(ff);
+    assert PrimeDivisors(Integers()!Discriminant(C)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-[1].m",curve_data[1],curve_data[2],Genus(C));
     Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n");
   else
     print "non-hyperelliptic case";
     C:=Curve(A3,Cpols);
-    Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
+    //Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-[1]-g%o.m",curve_data[1],curve_data[2],Genus(C));
     Write(filename_w1,"A3<x1,y1,z1> := AffineSpace(Rationals(),3);\n");
   end if;
@@ -205,8 +222,8 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   automorphisms:=FullAutomorphismListFromData(curve_data);
   //auts_list := [ m[2] : m in automorphisms ];
 
-  curve_quotients:=< <curve_data[1],curve_data[2],Cproj > >;
-  //<atkin-lehner subgroup H, quotient, rank, projection: X --> X/H >;
+  curve_quotients:=< <[1],C,Genus(C),-1,-1,-1 > >;
+  //<atkin-lehner subgroup H, quotient, genus, rank, projection: X --> X/H, automorphisms >;
   for i in [1..#automorphisms] do
 
     wd:=automorphisms[i];
@@ -214,7 +231,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
       auts:=[ a[2] : a in wd[2] ];
 
         if wd[1,2] ne curve_data[5] then
-           G1:=AutomorphismGroup(Cproj,auts);
+           G1:=AutomorphismGroup(C,auts);
            Cquo,proj:=CurveQuotient(G1);
            Cquo_genus:=Genus(Cquo);
         else
@@ -229,22 +246,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
           Cx:=HyperellipticCurve(fx);
           assert IsIsomorphic(Cquo,Cx);
           assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
-          /*
-            print "rank part";
-            try
-              rl, ru := RankBounds(Jacobian(Cx));
-              rl; ru;
-              if rl ne ru then
-                rank := "NA";
-                //rank := AnalyticRankShimuraCurve(Cx,curve_data[1]*curve_data[2]);
-              else
-                rank:=ru;
-              end if;
-            catch e
-              rank:= "NA";
-              //rank := AnalyticRankShimuraCurve(Cx,curve_data[1]*curve_data[2]);
-            end try;
-          */
+          //<Atkin-lehner, model, genus, rank,projection equations, automorphisms>
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>);
 
         elif  Cquo_genus eq 1 then

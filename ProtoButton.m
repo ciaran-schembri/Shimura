@@ -77,10 +77,10 @@ end intrinsic;
 
 
 
-intrinsic SmallerRankQuotient(Cx::CrvHyp) -> Any
-  {second try at finding rational points with quotients}
+intrinsic PullbackPointsFromQuotient(X::CrvHyp) -> Any
+  {Given a projection X->X/<w>, if X/<w> has a finite number of points, try to pull them back to X.}
   C:=SimplifiedModel(Cx);
-A := Automorphisms(C);
+  A := Automorphisms(C);
 
 if #A gt 2 then
   for i in [3..#A] do
