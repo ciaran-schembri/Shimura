@@ -34,6 +34,7 @@ intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
   Cpols:=curve_data[3];
   list:=curve_data[4];
 
+
   if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
     C:=Curve(A2,Cpols);
     R<x> := PolynomialRing(Rationals());
@@ -54,6 +55,7 @@ intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
       ww:=w_init cat [1];
       autw:=iso< C -> C | ww, ww >;
       Append(~involutions_init,<w[1], autw>);
+
     else
       autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
       Append(~involutions_init,<w[1], autw>);
@@ -191,6 +193,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
     print "hyperelliptic case";
     C:=Curve(A2,Cpols);
+
     R<x> := PolynomialRing(Rationals());
     ff := R!Evaluate(Cpols[1],[x,0]);
     C:=HyperellipticCurve(ff);
