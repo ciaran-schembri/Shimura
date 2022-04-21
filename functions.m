@@ -22,14 +22,16 @@ intrinsic GYData(D::RngIntElt,N::RngIntElt) -> Any
 end intrinsic;
 
 
-intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
-  {}
-  //Given a set of generators of the automorphism group
-  //return all subgroups of the full automorphism group as a list, with Atkin-Lehner descriptions
-  //Cpols are the polynomials defining C; list is a list of automorphisms.
+intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
+  {intput: discriminant D, level N
+   output: full list of <[Atkin-Lehner, Automorphisms>]
+  Given a set of generators of the automorphism group
+  return all subgroups of the full automorphism group as a list, with Atkin-Lehner descriptions
+  Cpols are the polynomials defining C; list is a list of automorphisms.}
   A2<x,y>:=AffineSpace(Rationals(),2);
   A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
+  curve_data:=GYData(D,N);
   level:=curve_data[2];
   Cpols:=curve_data[3];
   list:=curve_data[4];
@@ -104,6 +106,13 @@ intrinsic FullAutomorphismListFromData(curve_data::.) -> Any
 
   return involution_groups;
 
+end intrinsic;
+
+intrinsic AllAtkinLehners(D::RngIntElt, N::RngIntElt) -> SeqEnum
+  {input: discriminant D, level N
+  output: list of all Atkin-Lehners}
+  list:=FullAutomorphismListFromData(D,N);
+  return [ a[1] : a in list ];
 end intrinsic;
 
 
@@ -181,6 +190,147 @@ end intrinsic;
 
 
 
+intrinsic CurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
+  {input: discriminant D, level N, Atkin-lehners W
+  Output: atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms}
+  curve_data:=GYData(D,N);
+  Cpols:=curve_data[3];
+  list:=curve_data[4];
+
+  A2<x,y>:=AffineSpace(Rationals(),2);
+  A3<x1,y1,z1> := AffineSpace(Rationals(),3);
+
+  hyp_inv:=curve_data[5];
+
+  if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
+    C:=Curve(A2,Cpols);
+    R<x> := PolynomialRing(Rationals());
+    ff := R!Evaluate(Cpols[1],[x,0]);
+    C:=HyperellipticCurve(ff);
+    assert PrimeDivisors(Integers()!Discriminant(C)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
+  else
+    C:=Curve(A3,Cpols);
+  end if;
+
+  automorphisms:=FullAutomorphismListFromData(D,N);
+
+  for i in [1..#automorphisms] do
+    wd:=automorphisms[i];
+    if wd[1] eq W then
+      try
+        if wd[1] eq [1] then
+          return <[1],C,Genus(C),-1,-1,-1 >;
+        else
+          auts:=[ a[2] : a in wd[2] ];
+          AL:=wd[1];
+
+          if AL ne [1,hyp_inv] then
+            //take a smaller quotient first, then assert there's no extra automorphisms, then take a further quotient.
+            /*if hyp_inv in AL then
+              new_auts:=[];
+              for aa in wd[2] do
+                if #new_auts lt #AL/2 and aa[1] ne hyp_inv then
+                  aa[1];
+                  Append(~new_auts,aa[2]);
+                end if;
+              end for;
+              G1_init:=AutomorphismGroup(C,new_auts);
+              assert #G1_init eq #new_auts;
+              Cquo_init,proj_init:=CurveQuotient(G1_init);
+              try
+                IsGeometricallyHyperelliptic(Cquo_init);
+              catch e
+                e;
+              end try;
+              //sub:=Automorphisms(Cquo_init);
+              //G1:=AutomorphismGroup(Cquo_init,sub);
+              //Cquo,proj:=CurveQuotient(G1);
+            else*/
+            G1:=AutomorphismGroup(C,auts);
+            Cquo,proj:=CurveQuotient(G1);
+            Cquo_genus:=Genus(Cquo);
+            //end if;
+          else
+             _,Cquo,proj:=IsGeometricallyHyperelliptic(C);
+             Cquo_genus:=Genus(Cquo);
+             assert Cquo_genus eq 0;
+          end if;
+
+          if Cquo_genus ge 2 then
+            fx:=HyperellipticPolynomials(SimplifiedModel(ReducedMinimalWeierstrassModel(Cquo)));
+            Cx:=HyperellipticCurve(fx);
+            assert IsIsomorphic(Cquo,Cx);
+            assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
+            //<Atkin-lehner, model, genus, rank,projection equations, automorphisms>
+            return <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>;
+
+          elif  Cquo_genus eq 1 then
+            amb_size:=#Names(Ambient(Cquo));
+            if amb_size eq 3 then
+              P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
+              if Type(Cquo) eq CrvEll then
+                _,crvg1,em:= GenusOneModel(3,Cquo);
+                Cquo:=Curve(P2, Equations(crvg1));
+              else
+                Cquo:=Curve(P2, Equations(Cquo));
+              end if;
+            else
+              P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);
+              if Type(Cquo) eq CrvEll then
+                _,crvg1,em:= GenusOneModel(4,Cquo);
+                Cquo:=Curve(P3, Equations(crvg1));
+              else
+                Cquo:=Curve(P3, Equations(Cquo));
+              end if;
+            end if;
+
+            Cx:="NA";
+            EC:=Jacobian(Cquo);
+            rank:=Rank(EC);
+            torsion:=GroupName(TorsionSubgroup(EC) : TeX:=true);
+            fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
+            assert IsIsomorphic(EC,EllipticCurve(fx));
+            assert BadPrimes(EC) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
+            return <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>;
+
+          else
+            return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
+          end if;
+        end if;
+      catch e
+        return e;
+      end try;
+    end if;
+  end for;
+
+end intrinsic;
+
+intrinsic CurveQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
+  {input: discriminant D, level N, Atkin-lehners W
+  output: curve quotient X(D,N)/W }
+  list:=CurveQuotientData(D,N,W);
+  if Type(list) eq Tup then
+    return list[2];
+  else
+    return list;
+  end if;
+end intrinsic;
+
+
+intrinsic QuotientList(D::RngIntElt,N::RngIntElt) -> Any
+  {Input: discriminant D, level N
+  output: data of all quotients <atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms>}
+
+  atkinlehner:= AllAtkinLehners(D,N);
+
+  list:=<>;
+  for W in atkinlehner do
+    Append(~list, CurveQuotientData(D,N,W));
+  end for;
+
+  return list;
+end intrinsic;
+
 
 intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   {}
@@ -189,6 +339,11 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
 
   A2<x,y>:=AffineSpace(Rationals(),2);
   A3<x1,y1,z1> := AffineSpace(Rationals(),3);
+
+  hyp_inv:=curve_data[5];
+
+  print  "====================";
+  curve_data[1]; curve_data[2];
 
   if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
     print "hyperelliptic case";
@@ -199,28 +354,32 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
     C:=HyperellipticCurve(ff);
     assert PrimeDivisors(Integers()!Discriminant(C)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-[1].m",curve_data[1],curve_data[2],Genus(C));
-    Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n");
+    if writetofile eq true then Write(filename_w1,"A2<x,y>:=AffineSpace(Rationals(),2);\n"); end if;
   else
     print "non-hyperelliptic case";
     C:=Curve(A3,Cpols);
     //Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
     filename_w1:=Sprintf("ShimDB/Shim-X(%o,%o)-[1]-g%o.m",curve_data[1],curve_data[2],Genus(C));
-    Write(filename_w1,"A3<x1,y1,z1> := AffineSpace(Rationals(),3);\n");
+    if writetofile eq true then Write(filename_w1,"A3<x1,y1,z1> := AffineSpace(Rationals(),3);\n"); end if;
   end if;
 
-  Write(filename_w1,"RF := recformat< n : Integers(), ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel\n >;");
-  Write(filename_w1,"s := rec< RF | >;");
-  Write(filename_w1,Sprintf("s`ShimLabel := \"%o.%o-[1]\";\n", curve_data[1], curve_data[2]));
-  Write(filename_w1,Sprintf("%o %o;", "s`ShimDiscriminant := ", curve_data[1]));
-  Write(filename_w1,Sprintf("%o %o;", "s`ShimLevel := ", curve_data[2]));
-  Write(filename_w1,"s`ShimAtkinLehner := [1];");
-  if #Cpols eq 1 then
-    Write(filename_w1,Sprintf("s`ShimModel := Curve(A2,%o);", Cpols));
-  else
-    Write(filename_w1,Sprintf("s`ShimModel := Curve(A3,%o);", Cpols));
+  if writetofile eq true then
+    Write(filename_w1,"RF := recformat< n : Integers(), ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel\n >;");
+    Write(filename_w1,"s := rec< RF | >;");
+    Write(filename_w1,Sprintf("s`ShimLabel := \"%o.%o-[1]\";\n", curve_data[1], curve_data[2]));
+    Write(filename_w1,Sprintf("%o %o;", "s`ShimDiscriminant := ", curve_data[1]));
+    Write(filename_w1,Sprintf("%o %o;", "s`ShimLevel := ", curve_data[2]));
+    Write(filename_w1,"s`ShimAtkinLehner := [1];");
   end if;
-  Write(filename_w1,Sprintf("%o %o;\n", "s`ShimGenus := ", Genus(C)));
-  Write(filename_w1,"return s;");
+  if #Cpols eq 1 then
+    if writetofile then Write(filename_w1,Sprintf("s`ShimModel := Curve(A2,%o);", Cpols)); end if;
+  else
+    if writetofile then Write(filename_w1,Sprintf("s`ShimModel := Curve(A3,%o);", Cpols)); end if;
+  end if;
+  if writetofile then
+    Write(filename_w1,Sprintf("%o %o;\n", "s`ShimGenus := ", Genus(C)));
+    Write(filename_w1,"return s;");
+  end if;
 
   automorphisms:=FullAutomorphismListFromData(curve_data);
   //auts_list := [ m[2] : m in automorphisms ];
@@ -228,15 +387,38 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
   curve_quotients:=< <[1],C,Genus(C),-1,-1,-1 > >;
   //<atkin-lehner subgroup H, quotient, genus, rank, projection: X --> X/H, automorphisms >;
   for i in [1..#automorphisms] do
-
+    try
     wd:=automorphisms[i];
     if wd[1] ne [1] then
       auts:=[ a[2] : a in wd[2] ];
+      AL:=wd[1]; AL;
 
-        if wd[1,2] ne curve_data[5] then
-           G1:=AutomorphismGroup(C,auts);
-           Cquo,proj:=CurveQuotient(G1);
-           Cquo_genus:=Genus(Cquo);
+        if AL ne [1,hyp_inv] then
+          //take a smaller quotient first, then assert there's no extra automorphisms, then take a further quotient.
+          /*if hyp_inv in AL then
+            new_auts:=[];
+            for aa in wd[2] do
+              if #new_auts lt #AL/2 and aa[1] ne hyp_inv then
+                aa[1];
+                Append(~new_auts,aa[2]);
+              end if;
+            end for;
+            G1_init:=AutomorphismGroup(C,new_auts);
+            assert #G1_init eq #new_auts;
+            Cquo_init,proj_init:=CurveQuotient(G1_init);
+            try
+              IsGeometricallyHyperelliptic(Cquo_init);
+            catch e
+              e;
+            end try;
+            //sub:=Automorphisms(Cquo_init);
+            //G1:=AutomorphismGroup(Cquo_init,sub);
+            //Cquo,proj:=CurveQuotient(G1);
+          else*/
+            G1:=AutomorphismGroup(C,auts);
+            Cquo,proj:=CurveQuotient(G1);
+            Cquo_genus:=Genus(Cquo);
+          //end if;
         else
            _,Cquo,proj:=IsGeometricallyHyperelliptic(C);
            Cquo_genus:=Genus(Cquo);
@@ -253,6 +435,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>);
 
         elif  Cquo_genus eq 1 then
+          print "quotient genus = 1";
           amb_size:=#Names(Ambient(Cquo));
           if amb_size eq 3 then
             P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
@@ -283,9 +466,13 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>);
 
         else
+          print "quotient genus = 0";
           Append(~curve_quotients, <wd[1], Cquo, Cquo_genus, 0, 0, 0>);
         end if;
     end if;
+  catch e
+    e;
+  end try;
   end for;
 
   return curve_quotients;

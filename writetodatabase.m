@@ -7,7 +7,10 @@ for item in GYList() do
   disc:=item[1];
   level:=item[2];
   if disc notin [82] then
-    WriteShimToFile(disc,level);
+    for W in AllAtkinLehners(disc,level) do
+      printf "%o %o %o", disc,level,W;
+      CurveQuotient(disc,level,W);
+    end for;
   end if;
 end for;
 
