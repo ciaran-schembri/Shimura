@@ -7,9 +7,14 @@ for item in GYList() do
   disc:=item[1];
   level:=item[2];
   if disc notin [82] then
+    hyp_inv:=GYData(disc,level)[5];
     for W in AllAtkinLehners(disc,level) do
-      printf "%o %o %o", disc,level,W;
-      CurveQuotient(disc,level,W);
+      if hyp_inv in W and then
+        printf "%o %o %o\n", disc,level,W;
+        C:=ShimuraCurveQuotient(disc,level,W);
+        printf "Genus = %o\n", Genus(C);
+        C;
+      end if;
     end for;
   end if;
 end for;

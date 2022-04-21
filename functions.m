@@ -190,7 +190,7 @@ end intrinsic;
 
 
 
-intrinsic CurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
+intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   {input: discriminant D, level N, Atkin-lehners W
   Output: atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms}
   curve_data:=GYData(D,N);
@@ -305,10 +305,10 @@ intrinsic CurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
 
 end intrinsic;
 
-intrinsic CurveQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
+intrinsic ShimuraCurveQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   {input: discriminant D, level N, Atkin-lehners W
   output: curve quotient X(D,N)/W }
-  list:=CurveQuotientData(D,N,W);
+  list:=ShimuraCurveQuotientData(D,N,W);
   if Type(list) eq Tup then
     return list[2];
   else
@@ -325,7 +325,7 @@ intrinsic QuotientList(D::RngIntElt,N::RngIntElt) -> Any
 
   list:=<>;
   for W in atkinlehner do
-    Append(~list, CurveQuotientData(D,N,W));
+    Append(~list, ShimuraCurveQuotientData(D,N,W));
   end for;
 
   return list;
