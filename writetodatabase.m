@@ -3,19 +3,22 @@ SetDebugOnError(true);
 SetProfile(true);
 
 
-for item in GYList() do
-  disc:=item[1];
-  level:=item[2];
-  if disc notin [82] then
-    hyp_inv:=GYData(disc,level)[5];
-    for W in AllAtkinLehners(disc,level) do
-      if hyp_inv in W and then
-        printf "%o %o %o\n", disc,level,W;
-        C:=ShimuraCurveQuotient(disc,level,W);
-        printf "Genus = %o\n", Genus(C);
-        C;
-      end if;
-    end for;
+for i in [1..#GYList()] do
+  if i gt 43 then
+    item:=GYList()[i];
+    disc:=item[1];
+    level:=item[2];
+    if [disc,level] notin [[82,1],[119,1],[159,1],[194,1],[206,1],[10,23],[39,2]] then
+      hyp_inv:=GYData(disc,level)[5];
+      for W in AllAtkinLehners(disc,level) do
+        if hyp_inv in W then
+          printf "%o %o %o\n", disc,level,W;
+          C:=ShimuraCurveQuotient(disc,level,W);
+          //printf "Genus = %o\n", Genus(C);
+          C;
+        end if;
+      end for;
+    end if;
   end if;
 end for;
 
