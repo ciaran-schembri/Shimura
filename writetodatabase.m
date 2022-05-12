@@ -4,22 +4,22 @@ SetProfile(true);
 
 
 for i in [1..#GYList()] do
-  if i gt 43 then
+  //if i gt 43 then
     item:=GYList()[i];
     disc:=item[1];
     level:=item[2];
-    if [disc,level] notin [[82,1],[119,1],[159,1],[194,1],[206,1],[10,23],[39,2]] then
+    //if [disc,level] in [[10,23],[39,2]] then
       hyp_inv:=GYData(disc,level)[5];
       for W in AllAtkinLehners(disc,level) do
         if hyp_inv in W then
           printf "%o %o %o\n", disc,level,W;
           C:=ShimuraCurveQuotient(disc,level,W);
           //printf "Genus = %o\n", Genus(C);
-          C;
+          DefiningEquations(C);
         end if;
       end for;
-    end if;
-  end if;
+    //end if;
+  //end if;
 end for;
 
 ProfilePrintByTotalTime(:Max:=20);
@@ -63,7 +63,7 @@ command := Sprintf("ls %o", "ShimDB-v2");
 ls := Pipe(command, "");
 filenames := Split(ls, "\n");
 
-points_unkown:=[];
+points_unproven:=[];
 Hasse_violations:=[];
 for filename in filenames do
   file:=Sprintf("ShimDB-v2/%o",filename);
@@ -76,7 +76,7 @@ for filename in filenames do
   end if;
 
   if attr`ShimPointsProvedCorrect eq false then
-    Append(~points_unkown, filename);
+    Append(~points_unproven, filename);
   end if;
 
 end for;

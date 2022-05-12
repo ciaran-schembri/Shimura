@@ -193,6 +193,22 @@ end intrinsic;
 intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   {input: discriminant D, level N, Atkin-lehners W
   Output: atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms}
+
+  RF := recformat< n : Integers(),
+  ShimDiscriminant,
+  ShimLevel,
+  ShimAtkinLehner,
+  ShimGenus,
+  ShimModel
+  >;
+  s := rec< RF | >;
+
+  s`ShimDiscriminant := D;
+  s`ShimLevel := N;
+  s`ShimAtkinLehner := W;
+  s`ShimGenus := 0;
+  s`ShimModel := 0;
+
   curve_data:=GYData(D,N);
   Cpols:=curve_data[3];
   list:=curve_data[4];
@@ -214,6 +230,14 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
 
   automorphisms:=FullAutomorphismListFromData(D,N);
   hyp_inv_equation:= [ g[2] : g in [ b : b in automorphisms | b[1] eq [1,hyp_inv] ][1,2] | g[1] eq hyp_inv ][1];
+
+  if <D,N,W> in {<119,1,[1,7,17,119]>, <159,1,[1,3,53,159]>,  <194,1,[1,2,97,194]>,
+    <206,1,[1,2,103,206]>, <10,23,[ 1, 5, 46, 230 ]>, <10,23,[ 1, 2, 115, 230 ]>,
+    <10,23,[ 1, 10, 23, 230 ]>,  <10,23,[ 1, 2, 5, 10, 23, 46, 115, 230 ]>,
+    <39,2,[ 1, 2, 3, 6, 13, 26, 39, 78 ]>, <39,2,[ 1, 2, 39, 78 ]>,
+    <39,2,[ 1, 3, 13, 39 ]>,<39,2,[ 1, 6, 26, 39 ]>} then
+    return IntermediateQuotient(D,N,W);
+  end if;
 
   for i in [1..#automorphisms] do
     wd:=automorphisms[i];
@@ -244,7 +268,8 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
             assert IsIsomorphic(Cquo,Cx);
             assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
             //<Atkin-lehner, model, genus, rank,projection equations, automorphisms>
-            return <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>;
+            //return <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>;
+            return s;
 
           elif  Cquo_genus eq 1 then
             amb_size:=#Names(Ambient(Cquo));
@@ -273,10 +298,11 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
             fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
             assert IsIsomorphic(EC,EllipticCurve(fx));
             assert BadPrimes(EC) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
-            return <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>;
-
+            //return <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>;
+            return s;
           else
-            return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
+            //return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
+            return s;
           end if;
         end if;
       catch e
@@ -284,35 +310,8 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
         //the group, then take a proper subgroup not containing
         //the hyperelliptic involution, take the quotient by this group, then ask
         //if its geometrically hyperelliptic (if the genus is at least 2).
+        return IntermediateQuotient(D,N,W);
 
-        assert hyp_inv in W;
-        Waut_list:=[ wd[2,i,2] : i in [1..#wd[2]] ];
-        involution_subsets := [ Setseq(A) : A in Setseq(Subsets(Set(Waut_list))) | #A ne 0 ];
-        involution_groups_init:=[];
-        for list in involution_subsets do
-          aut_group:=AutomorphismGroup(C,list);
-          if #list eq #aut_group and hyp_inv_equation notin aut_group
-          and #list ne 1 and #list eq #Waut_list/2 then
-            Append(~involution_groups_init,list);
-          end if;
-        end for;
-
-        if #Waut_list eq 4 then assert #involution_groups_init eq 2; end if;
-        if #Waut_list eq 8 then assert #involution_groups_init eq 4; end if;
-
-        for group in involution_groups_init do
-          G2:=AutomorphismGroup(C,group);
-          Cquo_init,proj_init:=CurveQuotient(G2);
-          Cquo_genus_init:=Genus(Cquo_init);
-          if Cquo_genus_init ge 2 then
-            tr,Cquo,proj:=IsGeometricallyHyperelliptic(Cquo_init);
-            assert tr;
-            Cquo_genus:=Genus(Cquo);
-            assert Cquo_genus eq 0;
-            Cquo; Cquo_genus;
-            //return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
-          end if;
-        end for;
       end try;
     end if;
   end for;
@@ -321,7 +320,61 @@ end intrinsic;
 
 
 
-//intrinsic IntermediateQuotient -->
+intrinsic IntermediateQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
+  {}
+  curve_data:=GYData(D,N);
+  Cpols:=curve_data[3];
+  list:=curve_data[4];
+
+  A2<x,y>:=AffineSpace(Rationals(),2);
+  A3<x1,y1,z1> := AffineSpace(Rationals(),3);
+
+  hyp_inv:=curve_data[5];
+
+  if #Cpols eq 1 then //differentiates hyperelliptic from non-hyperelliptic
+    C:=Curve(A2,Cpols);
+    R<x> := PolynomialRing(Rationals());
+    ff := R!Evaluate(Cpols[1],[x,0]);
+    C:=HyperellipticCurve(ff);
+    assert PrimeDivisors(Integers()!Discriminant(C)) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
+  else
+    C:=Curve(A3,Cpols);
+  end if;
+
+  automorphisms:=FullAutomorphismListFromData(D,N);
+  hyp_inv_equation:= [ g[2] : g in [ b : b in automorphisms | b[1] eq [1,hyp_inv] ][1,2] | g[1] eq hyp_inv ][1];
+
+  wd:= [ a : a in automorphisms | a[1] eq W ][1];
+
+  assert hyp_inv in W;
+  Waut_list:=[ wd[2,i,2] : i in [1..#wd[2]] ];
+  involution_subsets := [ Setseq(A) : A in Setseq(Subsets(Set(Waut_list))) | #A ne 0 ];
+  involution_groups_init:=[];
+  for list in involution_subsets do
+    aut_group:=AutomorphismGroup(C,list);
+    if #list eq #aut_group and hyp_inv_equation notin aut_group
+    and #list ne 1 and #list eq #Waut_list/2 then
+      Append(~involution_groups_init,list);
+    end if;
+  end for;
+
+  if #Waut_list eq 4 then assert #involution_groups_init eq 2; end if;
+  if #Waut_list eq 8 then assert #involution_groups_init eq 4; end if;
+
+  for group in involution_groups_init do
+    G2:=AutomorphismGroup(C,group);
+    Cquo_init,proj_init:=CurveQuotient(G2);
+    Cquo_genus_init:=Genus(Cquo_init);
+    if Cquo_genus_init ge 2 then
+      tr,Cquo,proj:=IsGeometricallyHyperelliptic(Cquo_init);
+      assert tr;
+      Cquo_genus:=Genus(Cquo);
+      assert Cquo_genus eq 0;
+      Cquo; Cquo_genus;
+      return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
+    end if;
+  end for;
+end intrinsic;
 
 
 intrinsic ShimuraCurveQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
@@ -413,27 +466,7 @@ intrinsic DataToQuotientList(curve_data::. : writetofile:=false) -> Any
       AL:=wd[1]; AL;
 
         if AL ne [1,hyp_inv] then
-          //take a smaller quotient first, then assert there's no extra automorphisms, then take a further quotient.
-          /*if hyp_inv in AL then
-            new_auts:=[];
-            for aa in wd[2] do
-              if #new_auts lt #AL/2 and aa[1] ne hyp_inv then
-                aa[1];
-                Append(~new_auts,aa[2]);
-              end if;
-            end for;
-            G1_init:=AutomorphismGroup(C,new_auts);
-            assert #G1_init eq #new_auts;
-            Cquo_init,proj_init:=CurveQuotient(G1_init);
-            try
-              IsGeometricallyHyperelliptic(Cquo_init);
-            catch e
-              e;
-            end try;
-            //sub:=Automorphisms(Cquo_init);
-            //G1:=AutomorphismGroup(Cquo_init,sub);
-            //Cquo,proj:=CurveQuotient(G1);
-          else*/
+
             G1:=AutomorphismGroup(C,auts);
             Cquo,proj:=CurveQuotient(G1);
             Cquo_genus:=Genus(Cquo);
