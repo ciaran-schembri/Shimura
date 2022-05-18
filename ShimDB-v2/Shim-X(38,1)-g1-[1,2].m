@@ -25,8 +25,7 @@ s`ShimModel := Curve(P2,[
 -X^3 - X^2*Z + X*Y*Z + Y^2*Z + 70*X*Z^2 + Y*Z^2 + 279*Z^3
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), 
-FPGroup(Group("C1")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C1")));
 
 s`ShimPointsProvedCorrect := true;
 

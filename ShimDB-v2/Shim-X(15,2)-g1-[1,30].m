@@ -26,8 +26,7 @@ Y^2 - X*Z,
 3*X^2 - 14*Y^2 - 5*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), 
-FPGroup(Group("C4")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C4")));
 
 s`ShimPointsProvedCorrect := true;
 
@@ -65,8 +64,7 @@ Y^2 - X*Z,
 3*X^2 - 14*Y^2 - 5*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), 
-FPGroup(Group("C4")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C4")));
 
 s`ShimPointsProvedCorrect := true;
 

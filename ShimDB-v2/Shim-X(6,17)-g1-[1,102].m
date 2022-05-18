@@ -26,8 +26,7 @@ Y^2 - X*Z,
 -81/289*X^2 + 10/289*Y^2 - 1/153*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(1)), 
-FPGroup(Group("C2")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group("C2")));
 
 s`ShimPointsProvedCorrect := true;
 

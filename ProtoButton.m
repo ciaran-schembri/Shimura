@@ -79,30 +79,30 @@ end intrinsic;
 
 intrinsic PullbackPointsFromQuotient(X::CrvHyp) -> Any
   {Given a projection X->X/<w>, if X/<w> has a finite number of points, try to pull them back to X.}
-  C:=SimplifiedModel(Cx);
+  C:=SimplifiedModel(X);
   A := Automorphisms(C);
 
 if #A gt 2 then
   for i in [3..#A] do
-  	G := AutomorphismGroup(C,[A[i]]);
-	Q,m := CurveQuotient(G);
-  QQ,map := SimplifiedModel(Q);
-  if Genus(Q) eq 1 then
-    continue;
-  end if;
-	r := RankBounds(Jacobian(Q));
+    G := AutomorphismGroup(C,[A[i]]);
+  	Q,m := CurveQuotient(G);
+    QQ,map := SimplifiedModel(Q);
+    if Genus(Q) eq 1 then
+      continue;
+    end if;
+  	r := RankBounds(Jacobian(Q));
     if r lt Genus(Q) then
     	print Q;
     	b,im_pts := RationalPointsNaive(QQ);
     	pts := [];
     	for k in [1..#im_pts] do
-            R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
-            S:=IndexedSetToSequence(R);
-            pts := pts cat S; //TODO: remove dulplicates
-        end for;
-        if b then
+        R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
+        S:=IndexedSetToSequence(R);
+        pts := pts cat S; //TODO: remove dulplicates
+      end for;
+      if b then
         break i;
-    end if;
+      end if;
     end if;
   end for;
   if b then
@@ -156,7 +156,7 @@ end intrinsic;
 
 
 intrinsic RationalPointsAnyGenus(X::.) -> Any
-  {return the points, where they're prvoed correct and any extra info}
+  {return the points, where they're proved correct and any extra info}
   if Genus(X) eq 0 then
     return RationalPointsGenus0(X);
   elif Genus(X) eq 1 then
@@ -173,7 +173,7 @@ b,pts := RationalPointsNaive(C);
 if b then
     return true,pts;
 else
-    b,pts := SmallerRankQuotient(C);
+    b,pts := PullbackPointsFromQuotient(C);
     return b,pts;
 end if;
 if not b then

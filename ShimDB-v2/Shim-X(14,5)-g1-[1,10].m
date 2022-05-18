@@ -26,8 +26,7 @@ Y^2 - X*Z,
 23*X^2 + 1168/7*X*Y + 13802/49*Y^2 - 36688/343*Y*Z - 16721/2401*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), 
-FPGroup(Group("C2")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C2")));
 
 s`ShimPointsProvedCorrect := true;
 

@@ -26,8 +26,7 @@ Y^2 - X*Z,
 -81/49*X^2 + 26/49*Y^2 + 7/81*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), 
-FPGroup(Group("C6")));
+s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C6")));
 
 s`ShimPointsProvedCorrect := true;
 

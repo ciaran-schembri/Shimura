@@ -16,9 +16,7 @@ s`ShimLevel :=  1;
 s`ShimAtkinLehner :=  [ 1, 19 ];
 s`ShimGenus :=  4;
 
-s`ShimModel := HyperellipticCurve([Rx!-2*x^10 + 6*x^9 - 30*x^8 + 64*x^7 - 
-149*x^6 + 201*x^5 - 266*x^4 + 187*x^3 - 132*x^2 + 14*x - 43,Rx!x^5 + x^4 + x^3 +
-x^2 + x]);
+s`ShimModel := HyperellipticCurve([Rx!-2*x^10 + 6*x^9 - 30*x^8 + 64*x^7 - 149*x^6 + 201*x^5 - 266*x^4 + 187*x^3 - 132*x^2 + 14*x - 43,Rx!x^5 + x^4 + x^3 + x^2 + x]);
 
 return s;
 
