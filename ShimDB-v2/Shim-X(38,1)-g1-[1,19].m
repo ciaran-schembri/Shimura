@@ -25,11 +25,15 @@ s`ShimModel := Curve(P2,[
 -X^3 + X*Y*Z + Y^2*Z - 9*X*Z^2 + Y*Z^2 - 90*Z^3
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C3")));
+s`ShimRationalPoints := {
+[ 0, 9, 1 ],
+[ 0, -10, 1 ],
+[ 0, 1, 0 ]
+};
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "NA";
+s`ShimPointsNotes := "pullback of torsion";
 
 s`ShimPointsEverywhereLocally := true;
 

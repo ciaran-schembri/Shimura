@@ -212,7 +212,9 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   ShimLevel,
   ShimAtkinLehner,
   ShimGenus,
-  ShimModel
+  ShimModel,
+  ShimTopCurve,
+  ShimProjectionEquations
   >;
   s := rec< RF | >;
 
@@ -242,9 +244,12 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   if W eq [1] then
     s`ShimGenus:=Genus(C);
     s`ShimModel:=C;
+    s`ShimTopCurve:="NA";
+    s`ShimProjectionEquations:="NA";
     return s;
   end if;
 
+  s`ShimTopCurve:=C;
   automorphisms:=FullAutomorphismListFromData(D,N);
   hyp_inv_equation:= [ g[2] : g in [ b : b in automorphisms | b[1] eq [1,hyp_inv] ][1,2] | g[1] eq hyp_inv ][1];
 
@@ -272,6 +277,7 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
            Cquo_genus:=Genus(Cquo);
            assert Cquo_genus eq 0;
         end if;
+        s`ShimProjectionEquations:=proj;
 
         if Cquo_genus ge 2 then
           fx:=HyperellipticPolynomials(SimplifiedModel(ReducedMinimalWeierstrassModel(Cquo)));
@@ -280,7 +286,6 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
           assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
           s`ShimModel:=Cquo;
           s`ShimGenus:=Cquo_genus;
-          //s`ShimProjectionEquations:=proj;
           //<Atkin-lehner, model, genus, rank,projection equations, automorphisms>
           //return <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>;
           return s;
@@ -403,6 +408,8 @@ intrinsic IntermediateQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
       assert Cquo_genus eq 0;
       s`ShimModel:=Cquo;
       s`ShimGenus:=Cquo_genus;
+      s`ShimTopCurve:=C;
+      s`ShimProjectionEquations:=proj*proj_init;
       return s;
     end if;
   end for;

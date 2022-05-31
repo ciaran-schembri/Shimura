@@ -24,12 +24,12 @@ s`ShimModel := HyperellipticCurve([Rx!x^7 + 3*x^6 + 7*x^5 + 19*x^4 + 29*x^3 + 19
 
 s`ShimRationalPoints := {
 [ 1, -1, 0 ],
-[ 1, 0, 0 ]
+[ 1, 1, 0 ]
 };
 
-s`ShimPointsProvedCorrect := false;
+s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "inconclusive";
+s`ShimPointsNotes := "pullback from quotient";
 
 s`ShimPointsEverywhereLocally := true;
 

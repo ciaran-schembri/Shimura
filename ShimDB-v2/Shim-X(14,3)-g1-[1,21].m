@@ -26,11 +26,18 @@ Y^2 - X*Z,
 -81/49*X^2 + 26/49*Y^2 + 7/81*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C6")));
+s`ShimRationalPoints := {
+[ -49/36, 7/4, -9/4, 1 ],
+[ 7/9, 0, 0, 1 ],
+[ 49/36, 7/4, 9/4, 1 ],
+[ 49/36, -7/4, 9/4, 1 ],
+[ -7/9, 0, 0, 1 ],
+[ -49/36, -7/4, -9/4, 1 ]
+};
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "NA";
+s`ShimPointsNotes := "pullback of torsion";
 
 s`ShimPointsEverywhereLocally := true;
 

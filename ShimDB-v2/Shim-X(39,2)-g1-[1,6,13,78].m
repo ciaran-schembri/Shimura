@@ -13,26 +13,22 @@ RF := recformat< n : Integers(),
  >;
 s := rec< RF | >;
 
-s`ShimLabel := "26.3-[1,2,39,78]";
+s`ShimLabel := "39.2-[1,6,13,78]";
 
-s`ShimDiscriminant :=  26;
-s`ShimLevel :=  3;
-s`ShimAtkinLehner :=  [ 1, 2, 39, 78 ];
+s`ShimDiscriminant :=  39;
+s`ShimLevel :=  2;
+s`ShimAtkinLehner :=  [ 1, 6, 13, 78 ];
 s`ShimGenus :=  1;
 
-P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
-s`ShimModel := Curve(P2,[
--X^3 + X^2*Z + X*Y*Z + Y^2*Z + 3*X*Z^2 + Y*Z^2 - 3*Z^3
+P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);
+s`ShimModel := Curve(P3,[
+Y^2 - X*Z,
+3/256*X^2 + 7/16*X*Y + 25/4*Y^2 + 36*Y*Z + 48*Z^2 + T^2
 ]);
 
 s`ShimRationalPoints := {
-[ 3, 2, 1 ],
-[ -1, -2, 1 ],
-[ 1, 0, 1 ],
-[ -1, 2, 1 ],
-[ 3, -6, 1 ],
-[ 0, 1, 0 ],
-[ 1, -2, 1 ]
+[ 16, -2, 1/4, 1 ],
+[ -16, 2, -1/4, 1 ]
 };
 
 s`ShimPointsProvedCorrect := true;
@@ -42,4 +38,3 @@ s`ShimPointsNotes := "pullback of torsion";
 s`ShimPointsEverywhereLocally := true;
 
 return s;
-

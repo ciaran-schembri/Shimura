@@ -23,13 +23,13 @@ s`ShimGenus :=  3;
 s`ShimModel := HyperellipticCurve([Rx!-60*x^8 + 36*x^7 + 155*x^6 - 473*x^5 - 191*x^4 + 847*x^3 - 88*x^2 - 432*x + 162,Rx!x^2 + x]);
 
 s`ShimRationalPoints := {
-[ 3, -300, 5 ],
+[ 3, 0, 5 ],
 [ -1, 0, 1 ]
 };
 
-s`ShimPointsProvedCorrect := false;
+s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "inconclusive";
+s`ShimPointsNotes := "pullback from quotient";
 
 s`ShimPointsEverywhereLocally := true;
 

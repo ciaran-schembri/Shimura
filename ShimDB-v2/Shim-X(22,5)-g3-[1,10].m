@@ -27,9 +27,9 @@ s`ShimRationalPoints := {
 [ 1, 0, 0 ]
 };
 
-s`ShimPointsProvedCorrect := false;
+s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "inconclusive";
+s`ShimPointsNotes := "pullback from quotient";
 
 s`ShimPointsEverywhereLocally := true;
 

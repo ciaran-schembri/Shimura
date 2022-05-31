@@ -26,11 +26,18 @@ Y^2 - X*Z,
 23*X^2 + 274458/1271*X*Y + 445870093/3230882*Y^2 + 75751624885/4106451022*Y*Z - 105061922739001/41754393991696*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := {};
+s`ShimRationalPoints := {
+[ -12496225/103388224, 3535/40672, -1/16, 1 ],
+[ -986049/6461764, 993/2542, -1, 1 ],
+[ 190969/103388224, -1311/40672, 9/16, 1 ],
+[ -190969/103388224, 1311/40672, -9/16, 1 ],
+[ 12496225/103388224, -3535/40672, 1/16, 1 ],
+[ 986049/6461764, -993/2542, 1, 1 ]
+};
 
-s`ShimPointsProvedCorrect := false;
+s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "Is Locally Solvable";
+s`ShimPointsNotes := "pullback of torsion";
 
 s`ShimPointsEverywhereLocally := true;
 

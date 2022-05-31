@@ -26,11 +26,14 @@ Y^2 - X*Z,
 -81/289*X^2 - 214/289*Y^2 - 17/9*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(0)), FPGroup(Group("C2")));
+s`ShimRationalPoints := {
+[ -17/9, 0, 0, 1 ],
+[ 17/9, 0, 0, 1 ]
+};
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "NA";
+s`ShimPointsNotes := "pullback of torsion";
 
 s`ShimPointsEverywhereLocally := true;
 

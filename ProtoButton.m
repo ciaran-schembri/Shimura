@@ -34,41 +34,103 @@ intrinsic RationalPointsNaive(X::CrvHyp) -> Any
       shimnotes:="Used Magma's Chabauty0()";
       return shimpoints, shimproven, shimnotes;
     else
-      shimpoints:=Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
+      shimpoints, shimproven, shimnotes := PullbackPointsFromQuotient(C);
+      if shimproven eq true then
+        return shimpoints, shimproven, shimnotes;
+      else
+        shimpoints:=Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
+        shimproven:=false;
+        shimnotes:="inconclusive";
+        return shimpoints, shimproven, shimnotes;
+      end if;
+    end if;
+
+  else
+    shimpoints, shimproven, shimnotes := PullbackPointsFromQuotient(C);
+    if shimproven eq true then
+      return shimpoints, shimproven, shimnotes;
+    else
+      pointsX:= Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
+      shimpoints:=pointsX;
       shimproven:=false;
       shimnotes:="inconclusive";
       return shimpoints, shimproven, shimnotes;
     end if;
-
-  else
-    pointsX:= Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
-    shimpoints:=pointsX;
-    shimproven:=false;
-    shimnotes:="inconclusive";
-    return shimpoints, shimproven, shimnotes;
   end if;
-    /*
-    this doesn't work
-    elif l eq 1 and u eq 1 then
-      pointsJ := Points(JacC : Bound:=1000);
-      if pointsJ ne {} then
-        for i in [1..#pointsJ] do
-          if Order(pointsJ[i]) eq 0 then
-            P := pointsJ[i];
-            break i;
-          end if;
-        end for;
-        shimpoints := Chabauty(P);
-        shimproven:=true;
-        shimnotes := "Used Magma's Chabauty()"
-      else
-        shimpoints := Set([ Inverse(cm)(Q) : Q in Setseq(pointsearch) ]);;
-        shimproven:=false;
-        shimnotes := "inconclusive";
-      end if;
-    end if;
-  end if;*/
 
+end intrinsic;
+
+
+
+
+intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::SetEnum) -> SetEnum
+  {Given projection equations proj : X->X/<W>,
+  pullback quotient_points to X}
+  list:=<>;
+  for P in Setseq(quotient_points) do
+    XPScheme:=Difference(Pullback(proj,P), BaseScheme(proj));
+    Pbar,Kinit:=PointsOverSplittingField(XPScheme);
+    K:=NumberField(AbsolutePolynomial(Kinit));
+
+    D:=Domain(proj);
+    C:=Codomain(proj);
+
+    DK:=ChangeRing(D,K);
+    CK:=ChangeRing(C,K);
+
+    eqns:=DefiningEquations(proj);
+    RK:=Parent(ChangeRing(eqns[1],K));
+    eqnsK:=[];
+    for ff in eqns do
+      ffK:=ChangeRing(ff,RK);
+      Append(~eqnsK,ffK);
+    end for;
+
+    projK:=map< DK -> CK | eqnsK >;
+    XPKScheme:=Difference(Pullback((projK),CK!P), BaseScheme(projK));
+    Kpoints:=RationalPoints(XPKScheme);
+    for PK in Setseq(Kpoints) do
+      Append(~list,PK);
+    end for;
+  end for;
+
+  return list;
+end intrinsic;
+
+
+intrinsic PointRepresentsPQMSurface(proj::MapSch, P::., discriminant::RngIntElt, W::SeqEnum) -> BoolElt
+{Given a non-CM rational point P and projection equations proj : X->X/<W>,
+find whether the point represents a PQM surface c.f. BFGR theorem 4.5}
+
+  Kpts:=PullbackPointsWithEquation(proj,{P});
+  assert #Kpts eq 2;
+  K:=Ring(Parent(Kpts[1]));
+  assert K eq Ring(Parent(Kpts[2]));
+
+  delta:=Discriminant(K);
+  assert #W eq 2 and 1 in W;
+  m:=Sort(W)[2];
+  B:=QuaternionAlgebra< Rationals() | delta, m >;
+
+  if Integers()!Discriminant(B) eq discriminant then
+    return true;
+  else
+    return false;
+  end if;
+end intrinsic;
+
+
+intrinsic PointsRepresentatingPQMSurface(proj::MapSch,quotient_points::SetEnum,discriminant::RngIntElt, W::SeqEnum) -> SetEnum
+  {For all of the non-CM rational points on the quotient,
+  return the set of those that represent a PQM surface}
+
+  list:=[];
+  for P in Setseq(quotient_points) do
+    if PointRepresentsPQMSurface(proj,P,discriminant,W) then
+      Append(~list,P);
+    end if;
+  end for;
+  return Set(list);
 end intrinsic;
 
 
@@ -76,43 +138,77 @@ end intrinsic;
 
 
 
-
-intrinsic PullbackPointsFromQuotient(X::CrvHyp) -> Any
+intrinsic PullbackPointsFromQuotient(X::.) -> Any
   {Given a projection X->X/<w>, if X/<w> has a finite number of points, try to pull them back to X.}
-  C:=SimplifiedModel(X);
+  if Genus(X) lt 2 then
+    return {}, false, "inconclusive";
+  end if;
+
+  C,cm:=SimplifiedModel(X);
   A := Automorphisms(C);
 
-if #A gt 2 then
-  for i in [3..#A] do
+  for i in [1..#A] do
     G := AutomorphismGroup(C,[A[i]]);
   	Q,m := CurveQuotient(G);
-    QQ,map := SimplifiedModel(Q);
-    if Genus(Q) eq 1 then
-      continue;
-    end if;
-  	r := RankBounds(Jacobian(Q));
-    if r lt Genus(Q) then
-    	print Q;
-    	b,im_pts := RationalPointsNaive(QQ);
-    	pts := [];
-    	for k in [1..#im_pts] do
-        R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
-        S:=IndexedSetToSequence(R);
-        pts := pts cat S; //TODO: remove dulplicates
-      end for;
-      if b then
-        break i;
+    if Genus(Q) ne 0 and not(IsIsomorphic(Q,C)) then
+      if Type(Q) eq CrvEll then
+        if  MordellWeilRank(Q) eq 0 then
+          T,t:=TorsionSubgroup(Q);
+          ECpts := [ t(x) : x in Set(T) ];
+          RC := &cat[ Setseq(RationalPoints(Difference(Pullback((m),P), BaseScheme(m)))) : P in ECpts ];
+          RX := Set([ Inverse(cm)(p) : p in RC ]);
+          shimpoints:=RX;
+          shimproven:=true;
+          shimnotes:="pullback from quotient";
+          return shimpoints, shimproven, shimnotes;
+        end if;
+      else
+        pts, proven:=RationalPointsAnyGenus(Q);
+        if proven and Type(pts) eq SetEnum then
+          RC := &cat[ Setseq(RationalPoints(Difference(Pullback((m),P), BaseScheme(m)))) : P in Setseq(pts) ];
+          RX := Set([ Inverse(cm)(p) : p in RC ]);
+          shimpoints:=RX;
+          shimproven:=true;
+          shimnotes:="pullback from quotient";
+          return shimpoints, shimproven, shimnotes;
+        end if;
       end if;
     end if;
+  end for;
+
+  shimpoints:={};
+  shimproven:=false;
+  shimnotes:="inconclusive";
+  return shimpoints, shimproven, shimnotes;
+end intrinsic;
+
+/*
+      if Genus(Q) eq 1 then
+
+        continue;
+      end if;
+    	r := RankBounds(Jacobian(Q));
+      if r lt Genus(Q) then
+      	print Q;
+      	b,im_pts := RationalPointsNaive(QQ);
+      	pts := [];
+      	for k in [1..#im_pts] do
+          R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
+          S:=IndexedSetToSequence(R);
+          pts := pts cat S; //TODO: remove dulplicates
+        end for;
+        if b then
+          break i;
+        end if;
+      end if;
   end for;
   if b then
   return true,pts;
   else print "keep looking";
   	return false,{};
-end if;
-end if;
+  end if;
 end intrinsic;
-
+*/
 
 
 intrinsic RationalPointsGenus0(C::CrvCon) -> Any
@@ -127,22 +223,44 @@ end intrinsic;
 intrinsic RationalPointsGenus1(X::Crv) -> Any
  {For a Genus 1 curve, return whether it has a rational point; if it does return the mordell-weil group.
   also if it is proven and any notes}
+
   XG1:=GenusOneModel(X);
+  MinXG1, psi1:=Minimise(XG1);
+  XG1_reduced, psi2:=Reduce(MinXG1);
+  X_reduced:=Curve(XG1_reduced);
+
   locally_sol:=IsLocallySolvable(XG1);
   if locally_sol eq true then
-    pointsearch:=Set(Setseq(Points(X : Bound:=10000)));
+    pointsearch:=Set(Setseq(Points(X_reduced : Bound:=10000)));
     if pointsearch eq {} then
       shimpoints:=pointsearch;
       shimproven:=false;
       shimnotes:="Is Locally Solvable";
     else
       JacX:=Jacobian(X);
-      torsion:=TorsionSubgroup(JacX);
-      tors_group:=GroupName(torsion);
-      rank:=Rank(JacX);  //not sure if this is proved
-      shimpoints:=Sprintf("DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(\"%o\")))", rank, tors_group );
-      shimproven:=true;
-      shimnotes:= "NA";
+      rank:=MordellWeilRank(JacX);
+      pointsX:=[];
+      d:=100000;
+      while #pointsX eq 0 do
+        d:=d+100000;
+        pointsX  := pointsX cat Setseq(Set(Points(X : Bound:=d)));
+      end while;
+      pt:=pointsX[1];
+      E,em:=EllipticCurve(X,pt);
+      T,t:=TorsionSubgroup(E);
+      if rank eq 0 then
+        pts := [ (t(x)) : x in Set(T) ];
+        ptsX:=Set(&cat[ Setseq(RationalPoints(Difference(Pullback(em,P), BaseScheme(em)))) : P in pts ]);
+        assert #ptsX eq #Set(T);
+        shimpoints:=ptsX;
+        shimproven:=true;
+        shimnotes:="pullback of torsion";
+      else
+  //not sure if this is proved
+        shimpoints:="NA";
+        shimproven:=true;
+        shimnotes:= Sprintf("DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(%o)))", rank, Sprint(GroupName(T)) );
+      end if;
     end if;
   else
     shimpoints:={};

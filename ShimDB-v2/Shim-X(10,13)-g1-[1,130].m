@@ -26,11 +26,11 @@ Y^2 - X*Z,
 -208*X^2 + 296/25*Y^2 - 1/5*Z^2 + T^2
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group("C6")));
+s`ShimRationalPoints := "NA";
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "NA";
+s`ShimPointsNotes := "DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group(C6)))";
 
 s`ShimPointsEverywhereLocally := true;
 

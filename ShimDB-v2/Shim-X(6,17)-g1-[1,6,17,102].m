@@ -25,11 +25,11 @@ s`ShimModel := Curve(P2,[
 -X^3 - X^2*Z + X*Y*Z + Y^2*Z - 8*X*Z^2 - 10*Z^3
 ]);
 
-s`ShimRationalPoints := DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group("C2")));
+s`ShimRationalPoints := "NA";
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "NA";
+s`ShimPointsNotes := "DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group(C2)))";
 
 s`ShimPointsEverywhereLocally := true;
 

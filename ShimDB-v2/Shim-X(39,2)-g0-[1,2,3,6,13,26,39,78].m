@@ -13,23 +13,21 @@ RF := recformat< n : Integers(),
  >;
 s := rec< RF | >;
 
-s`ShimLabel := "58.1-[1,58]";
+s`ShimLabel := "39.2-[1,2,3,6,13,26,39,78]";
 
-s`ShimDiscriminant :=  58;
-s`ShimLevel :=  1;
-s`ShimAtkinLehner :=  [ 1, 58 ];
-s`ShimGenus :=  1;
+s`ShimDiscriminant :=  39;
+s`ShimLevel :=  2;
+s`ShimAtkinLehner :=  [ 1, 2, 3, 6, 13, 26, 39, 78 ];
+s`ShimGenus :=  0;
 
-P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);
-s`ShimModel := Curve(P2,[
--X^3 + X^2*Z + X*Y*Z + Y^2*Z + X*Z^2 - Z^3
-]);
+P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
+s`ShimModel := Conic(P2,Y^2 - X*T); 
 
-s`ShimRationalPoints := "NA";
+s`ShimRationalPoints := true;
 
 s`ShimPointsProvedCorrect := true;
 
-s`ShimPointsNotes := "DirectProduct(FPGroup(FreeAbelianGroup(1)), FPGroup(Group(C1)))";
+s`ShimPointsNotes := "NA";
 
 s`ShimPointsEverywhereLocally := true;
 
