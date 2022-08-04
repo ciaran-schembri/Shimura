@@ -48,6 +48,7 @@ intrinsic RationalPointsNaive(X::CrvHyp) -> Any
   else
     shimpoints, shimproven, shimnotes := PullbackPointsFromQuotient(C);
     if shimproven eq true then
+      shimpoints:=Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
       return shimpoints, shimproven, shimnotes;
     else
       pointsX:= Set([ Inverse(cm)(P) : P in Setseq(pointsearch) ]);
@@ -63,76 +64,77 @@ end intrinsic;
 
 
 
-intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::SetEnum) -> SetEnum
+intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::List) -> SetEnum
   {Given projection equations proj : X->X/<W>,
   pullback quotient_points to X}
-  list:=<>;
-  for P in Setseq(quotient_points) do
-    XPScheme:=Difference(Pullback(proj,P), BaseScheme(proj));
+/*  S:= [ P : P in quotient_points ];
+  if Type(Codomain(proj)) eq CrvHyp then
+    inf_pts:=PointsAtInfinity(Codomain(proj));
+    assert #inf_pts le 2;
+    if #inf_pts eq 2 then
+      Sinf:=[ Q : Q in inf_pts | Eltseq(Q) in S ];
+      if #Sinf eq 2 then
+        Exclude(~S,Eltseq(inf_pts[1]));
+      end if;
+    end if;
+  end if;*/
+
+  list:=[* *];
+
+  for P in quotient_points do
+    XPScheme:=Difference(Pullback(proj,Codomain(proj)!Eltseq(P)), BaseScheme(proj));
     Pbar,Kinit:=PointsOverSplittingField(XPScheme);
-    K:=NumberField(AbsolutePolynomial(Kinit));
+    assert #Pbar in {0,2,4};
+    if #Pbar in {2,4} then
+      if #Pbar eq 4 then
+        assert 0 eq 1;
+        /*if Type(Codomain(proj)) eq CrvHyp then
+          assert P in PointsAtInfinity(Codomain(proj));
+        else
+          assert P[3] eq 0;
+        end if;
+      end if;*/
+      else
+        assert Dimension(XPScheme) eq 0;
+        K:=NumberField(AbsolutePolynomial(Kinit));
 
-    D:=Domain(proj);
-    C:=Codomain(proj);
+        D:=Domain(proj);
+        C:=Codomain(proj);
 
-    DK:=ChangeRing(D,K);
-    CK:=ChangeRing(C,K);
+        DK:=ChangeRing(D,K);
+        CK:=ChangeRing(C,K);
 
-    eqns:=DefiningEquations(proj);
-    RK:=Parent(ChangeRing(eqns[1],K));
-    eqnsK:=[];
-    for ff in eqns do
-      ffK:=ChangeRing(ff,RK);
-      Append(~eqnsK,ffK);
-    end for;
+        eqns:=DefiningEquations(proj);
+        RK:=Parent(ChangeRing(eqns[1],K));
+        eqnsK:=[];
+        for ff in eqns do
+          ffK:=ChangeRing(ff,RK);
+          Append(~eqnsK,ffK);
+        end for;
 
-    projK:=map< DK -> CK | eqnsK >;
-    XPKScheme:=Difference(Pullback((projK),CK!P), BaseScheme(projK));
-    Kpoints:=RationalPoints(XPKScheme);
-    for PK in Setseq(Kpoints) do
-      Append(~list,PK);
-    end for;
+        projK:=map< DK -> CK | eqnsK >;
+        PKinit:=[ K!a : a in Eltseq(P) ];
+        XPKScheme:=Difference(Pullback((projK),CK!PKinit), BaseScheme(projK));
+        Kpoints:=RationalPoints(XPKScheme);
+        for PK in Setseq(Kpoints) do
+          Append(~list,PK);
+        end for;
+      end if;
+    else
+
+      assert Dimension(XPScheme) eq -1;
+      PPproj:=ProjectiveClosure(proj);
+      PPD:=Domain(PPproj);
+      PPC:=Codomain(PPproj);
+      XPScheme:=Difference(Pullback(PPproj,PPC!P), BaseScheme(PPproj));
+      Pbar,Kinit:=PointsOverSplittingField(XPScheme);
+      assert Pbar eq {XPScheme![0,1,0,0]};
+
+    end if;
   end for;
 
   return list;
 end intrinsic;
-
-
-intrinsic PointRepresentsPQMSurface(proj::MapSch, P::., discriminant::RngIntElt, W::SeqEnum) -> BoolElt
-{Given a non-CM rational point P and projection equations proj : X->X/<W>,
-find whether the point represents a PQM surface c.f. BFGR theorem 4.5}
-
-  Kpts:=PullbackPointsWithEquation(proj,{P});
-  assert #Kpts eq 2;
-  K:=Ring(Parent(Kpts[1]));
-  assert K eq Ring(Parent(Kpts[2]));
-
-  delta:=Discriminant(K);
-  assert #W eq 2 and 1 in W;
-  m:=Sort(W)[2];
-  B:=QuaternionAlgebra< Rationals() | delta, m >;
-
-  if Integers()!Discriminant(B) eq discriminant then
-    return true;
-  else
-    return false;
-  end if;
-end intrinsic;
-
-
-intrinsic PointsRepresentatingPQMSurface(proj::MapSch,quotient_points::SetEnum,discriminant::RngIntElt, W::SeqEnum) -> SetEnum
-  {For all of the non-CM rational points on the quotient,
-  return the set of those that represent a PQM surface}
-
-  list:=[];
-  for P in Setseq(quotient_points) do
-    if PointRepresentsPQMSurface(proj,P,discriminant,W) then
-      Append(~list,P);
-    end if;
-  end for;
-  return Set(list);
-end intrinsic;
-
 
 
 
@@ -321,6 +323,97 @@ intrinsic HasAdelicPointsAnyGenus(X::.) -> Any
   end if;
 
 end intrinsic;
+
+
+intrinsic ChangeRingMap(map::MapSch,K::.) -> MapSch
+  {Change (extend) the base ring of a map of schemes}
+  D:=Domain(map);
+  DK:=ChangeRing(D,K);
+  C:=Codomain(map);
+  CK:=ChangeRing(C,K);
+
+  eqns:= DefiningEquations(map);
+  eqnsK:=[];
+  for f in eqns do
+    Append(~eqnsK,ChangeRing(f,K));
+  end for;
+  return map< DK -> CK | eqnsK >;
+end intrinsic;
+
+intrinsic CoercePointAnyField(C::.,P::SeqEnum) -> Pt
+  {Given a point P on the curve over an extension, coerce the
+  point onto the curve over that extension}
+  CK:=ChangeRing(C,Parent(P[1]));
+  return CK!P;
+end intrinsic;
+
+
+intrinsic MapPointAnyField(map::MapSch,P::Pt) -> Pt
+  {Given a point in the codomain of the map over some extension field,
+  apply the map to this point. Change parent of point to be rationals if possible}
+
+  K:=Parent(Eltseq(P)[1]);
+  P1:=Domain(ChangeRingMap(map,K))!Eltseq(P);
+  new_pt:=ChangeRingMap(map,K)(P1);
+
+  F:=sub< K | Eltseq(new_pt) >;
+
+  CF:=ChangeRing(Codomain(map),F);
+  FP:=CF!([F!a : a in Eltseq(new_pt)]);
+  return FP;
+
+/*  try
+    for a0 in Eltseq(new_pt) do
+      b0:=Rationals()!a0;
+    end for;
+    return ChangeRingMap(Codomain(map),Rationals())![ Rationals()!a : a in Eltseq(new_pt)];
+  catch e
+    return new_pt;
+  end try;*/
+
+end intrinsic;
+
+
+intrinsic IsHyperellipticAtkinLehner(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> BoolElt
+  {Check whether Atkin-Lehner is the hyperelliptic one}
+  list:=GYData(D,N);
+  if [1,list[5]] eq W then
+    return true;
+  else
+    return false;
+  end if;
+end intrinsic;
+
+
+intrinsic HyperellipticAtkinLehner(D::RngIntElt, N::RngIntElt) -> SeqEnum
+  {For discriminant D and level N return the Atkin-Lehner which is the hyperelliptic involution}
+  for W in AllAtkinLehners(D,N) do
+    if IsHyperellipticAtkinLehner(D,N,W) then
+      return W;
+    end if;
+  end for;
+end intrinsic;
+
+/*intrinsic ShimuraCMPoints(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> SeqEnum
+  {Given X(D,N)/W, return the CM points on this curve by pulling back the
+  CM points from the hyperelliptic quotient to the top curve and then projecting}
+
+  Whyp:=HyperellipticAtkinLehner(D,N);
+  shyp:=ShimuraCurveQuotientData(D,N,Whyp);
+  hyp_proj:=shyp`ShimProjectionEquations;
+  cm_hyp:={shyp`ShimModel![0,0,1]};
+  cm_topcurve:=PullbackPointsWithEquation(hyp_proj,cm_hyp);
+
+  s:=ShimuraCurveQuotientData(D,N,W);
+  proj:=s`ShimProjectionEquations;
+
+  cm_projected:=<>;
+  for Q in cm_topcurve do
+    Append(~cm_projected,MapPointAnyField(proj,Q));
+  end for;
+
+  return cm_projected;
+end intrinsic;*/
 
 
 

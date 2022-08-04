@@ -1,12 +1,14 @@
 Rx<x>:=PolynomialRing(Rationals());
-RF := recformat< n : Integers(),
+RF := recformat< 
  ShimLabel,
  ShimDiscriminant,
  ShimLevel,
  ShimAtkinLehner,
  ShimGenus,
- ShimModel
- >;
+ ShimModel,
+ ShimTopCurve,
+ ShimProjectionEquations
+>;
 s := rec< RF | >;
 
 s`ShimLabel := "21.2-[1,6]";
@@ -16,7 +18,16 @@ s`ShimLevel :=  2;
 s`ShimAtkinLehner :=  [ 1, 6 ];
 s`ShimGenus :=  2;
 
-s`ShimModel := HyperellipticCurve([Rx!-7*x^5 - 4*x^4 - 15*x^3 - 4*x^2 - 7*x,Rx!x^2 + x]);
-
+s`ShimModel := HyperellipticCurve([Polynomial([RationalField() | 0, -7, -4, -15, -4, -7]), Polynomial([RationalField() | 0, 1, 1])]);
+AS<[x]> := AffineSpace(RationalField(), 3);
+s`ShimTopCurve:=Curve(AS, [
+-9*x[1]^6 - 89*x[1]^4 - 179*x[1]^2 - x[2]^2 + 21,
+-x[1]^2 - x[3]^2 - 3
+]);
+s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | [
+-1/4*x[3]^2 + 1/2*x[3],
+1/32*x[1]*x[2]*x[3]^2 + 1/64*x[3]^6 - 1/16*x[3]^4,
+-1/4*x[3]^2 - 1/2*x[3]
+] >;
 return s;
 

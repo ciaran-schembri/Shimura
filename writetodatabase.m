@@ -7,31 +7,31 @@ for i in [1..#GYList()] do
     item:=GYList()[i];
     disc:=item[1];
     level:=item[2];
-    if disc eq 39 and level eq 2 then
+    //if disc eq 39 and level eq 2 then
     if ShimuraCurveQuotientData(disc,level,[1])`ShimGenus ge 2 then
       for W in AllAtkinLehners(disc,level) do
-          if W ne [1,6,13,78] then
+        //if W ne [1,6,13,78] then
           printf "%o %o %o\n", disc,level,W;
           MakeShimDBObject(disc,level,W);
-          attr:=ShimDBRecord(disc,level,W);
-        end if;
-          //C:=ShimuraCurveQuotient(disc,level,W);
-          //printf "Genus = %o\n", Genus(C);
-          //DefiningEquations(C);
+          attr:=ShimDBRecord(disc,level,W : version:=1);
+        //end if;
+        //C:=ShimuraCurveQuotient(disc,level,W);
+        //printf "Genus = %o\n", Genus(C);
+        //DefiningEquations(C);
       end for;
     end if;
-  end if;
+  //end if;
 end for;
 
 ProfilePrintByTotalTime(:Max:=20);
 
 
-command := Sprintf("ls %o", "ShimDB");
+command := Sprintf("ls %o", "ShimDB-v1");
 ls := Pipe(command, "");
 filenames := Split(ls, "\n");
 
 for filename in filenames do
-  file:=Sprintf("ShimDB/%o",filename);
+  file:=Sprintf("ShimDB-v1/%o",filename);
   file;
   FP:=Read(file);
   attr:=eval FP;
@@ -90,6 +90,17 @@ end for;
 points_unproven;
 Hasse_violations;
 
+for filename in filenames do
+  file:=Sprintf("ShimDB-v2/%o",filename);
+  filename;
+  FP:=Read(file);
+  s:=eval FP;
+  proj:=s`ShimProjectionEquations;
+  quotient_points:=s`ShimRationalPoints;
+  W:=s`ShimAtkinLehner;
+  discriminant:=s`ShimDiscriminant;
+  PointsRepresentatingPQMSurface(proj,quotient_points,W,discriminant);
+end for;
 
 
 

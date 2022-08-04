@@ -1,13 +1,14 @@
-A3<x1,y1,z1>:=AffineSpace(Rationals(),3);
 Rx<x>:=PolynomialRing(Rationals());
-RF := recformat< n : Integers(),
+RF := recformat< 
  ShimLabel,
  ShimDiscriminant,
  ShimLevel,
  ShimAtkinLehner,
  ShimGenus,
- ShimModel
- >;
+ ShimModel,
+ ShimTopCurve,
+ ShimProjectionEquations
+>;
 s := rec< RF | >;
 
 s`ShimLabel := "14.5-[1]";
@@ -17,5 +18,13 @@ s`ShimLevel :=  5;
 s`ShimAtkinLehner :=  [ 1 ];
 s`ShimGenus :=  3;
 
+s`ShimModel := HyperellipticCurve([Polynomial([RationalField() | -23, 180, -358, 168, -677, -168, -358, -180, -23]), Polynomial([RationalField() |])]);
+s`ShimTopCurve := HyperellipticCurve([Polynomial([RationalField() | -23, 180, -358, 168, -677, -168, -358, -180, -23]), Polynomial([RationalField() |])]);
+P2<[x]>:=Ambient(s`ShimTopCurve);
+s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | [
+x[1],
+x[2],
+x[3]
+] >;
 return s;
 

@@ -1,12 +1,14 @@
 Rx<x>:=PolynomialRing(Rationals());
-RF := recformat< n : Integers(),
+RF := recformat< 
  ShimLabel,
  ShimDiscriminant,
  ShimLevel,
  ShimAtkinLehner,
  ShimGenus,
- ShimModel
- >;
+ ShimModel,
+ ShimTopCurve,
+ ShimProjectionEquations
+>;
 s := rec< RF | >;
 
 s`ShimLabel := "10.19-[1,2,5,10,19,38,95,190]";
@@ -19,5 +21,15 @@ s`ShimGenus :=  0;
 P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
 s`ShimModel := Conic(P2,X*Y - 5*X*T - 160*Y*T); 
 
+AS<[x]> := AffineSpace(RationalField(), 3);
+s`ShimTopCurve:=Curve(AS, [
+-8*x[1]^6 + 57*x[1]^4 - 40*x[1]^2 - x[2]^2 + 16,
+5*x[1]^2 - x[3]^2 - 32
+]);
+s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | [
+5*x[3]^4 + 160*x[3]^2,
+5*x[3]^2 + 160,
+x[3]^2
+] >;
 return s;
 

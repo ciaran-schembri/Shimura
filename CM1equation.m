@@ -1,9 +1,11 @@
 _<x> := PolynomialRing(Rationals());
 
 
+intrinsic CMList() -> Any
+{}
 
-
-L26 := < 1,-1,3,-3,QuadraticField(5).1,-QuadraticField(5).1,QuadraticField(-3).1,QuadraticField(-3).1,0,9/5,-9/5>;
+//L26 := < 1,-1,3,-3,QuadraticField(5).1,-QuadraticField(5).1,QuadraticField(-3).1,QuadraticField(-3).1,0,9/5,-9/5>;
+L26 := < Rationals()!1,Rationals()!-1,Rationals()!3,Rationals()!-3,NumberField(x^2-5).1,-NumberField(x^2-5).1,QuadraticField(-3).1,QuadraticField(-3).1,0,9/5,-9/5>;
 
 L38 := < 1,-1,0,QuadraticField(-1).1,-QuadraticField(-1).1,QuadraticField(-3).1,-QuadraticField(-3).1,3,-3,2/9,-2/9,
 QuadraticField(-19).1/3,-QuadraticField(-19).1/3,QuadraticField(29).1/9,-QuadraticField(29).1/9,
@@ -106,8 +108,8 @@ QuadraticField(-1).1,-QuadraticField(-1).1,3, -3,
 
 
 L134 := < 1, 0, (1+QuadraticField(-3).1)/2, (1-QuadraticField(-3).1)/2,
-(1+QuadraticField(5).1)/2, (-1+QuadraticField(5).1)/2, 
-(1-QuadraticField(5).1)/2, (-1-QuadraticField(5).1)/2, 
+(1+QuadraticField(5).1)/2, (-1+QuadraticField(5).1)/2,
+(1-QuadraticField(5).1)/2, (-1-QuadraticField(5).1)/2,
 (3+QuadraticField(5).1)/2, (3-QuadraticField(5).1)/2, -1,
 (5+QuadraticField(-11).1)/6, (5-QuadraticField(-11).1)/6,
 (-1+QuadraticField(13).1)/2, (-1-QuadraticField(13).1)/2,
@@ -441,27 +443,27 @@ Roots(x^4 + 54/7*x^3 + 134/7*x^2 + 108/7*x + 4,SplittingField((x^2-39)*(x^2+3)))
 
 
 
-CMpoints := <
-<1,26,L26>,
-<1,38,L38>,
-<1,39,L39>,
-<1,51,L51>,
-<1,51,L58>,
-<1,55,L55>,
-<1,62,L62>,
-<1,69,L69>,
-<1,74,L74>,
-<1,86,L86>,
-<1,87,L87>,
-<1,94,L94>,
-<1,95,L95>,
-<1,111,L111>,
-<1,119,L119>,
-<1,134,L134>,
-<1,146,L146>,
-<1,159,L159>,
-<1,194,L194>,
-<1,206,L206>,
+CM_list := <
+<26,1,L26>,
+<38,1,L38>,
+<39,1,L39>,
+<51,1,L51>,
+<58,1,L58>,
+<55,1,L55>,
+<62,1,L62>,
+<69,1,L69>,
+<74,1,L74>,
+<86,1,L86>,
+<87,1,L87>,
+<94,1,L94>,
+<95,1,L95>,
+<111,1,L111>,
+<119,1,L119>,
+<134,1,L134>,
+<146,1,L146>,
+<159,1,L159>,
+<194,1,L194>,
+<206,1,L206>,
 <6,11,L6x11>,
 <6,19,L6x19>,
 <6,29,L6x29>,
@@ -476,7 +478,74 @@ CMpoints := <
 <22,5,L22x5>,
 <39,2,L39x2>>;
 
+return CM_list;
 
+end intrinsic;
+
+
+
+
+intrinsic ShimCMPointsGuoYang(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
+  {Get the CM points for disc, level and W
+  We know the x_coord from Guo-Yang, then we need to adjoin it X(D,N)
+  and project onto X(D,N)/W}
+  CM_xvalues:=[ A[3] : A in CMList() | A[1] eq D and A[2] eq N ][1];
+  s_top:=ShimDBRecord(D,N,[1] : version:=1);
+  C:=s_top`ShimModel;
+  A2<x,y>:=AffineSpace(Rationals(),2);
+  //Caff:=Curve(A2,y^2 -Evaluate(HyperellipticPolynomials(C),A2.1));
+  hyp_quotientcurve:=ProjectiveClosure(Curve(A2, y - Evaluate(HyperellipticPolynomials(C),A2.1)));
+  P2<[x]>:=Ambient(C);
+  g:=Degree(C);
+  coefs:=Coefficients(HyperellipticPolynomials(C));
+  hyppols:= &+([ coefs[i]*(x[1]^(i-1))*(x[3]^(g-i+1)) : i in [1..#coefs] ]);
+  hyp_proj:= map< C -> hyp_quotientcurve | [x[1]*x[3]^(g-1), hyppols , x[3]^g] >;
+
+  CM_points_top_curve:=[* *];
+  for x_coord in CM_xvalues do
+    y_coord_sq:=Evaluate(HyperellipticPolynomials(C),x_coord);
+    if IsSquare(y_coord_sq) then
+      tup1:=[x_coord,Sqrt(y_coord_sq),1];
+      tup2:=[x_coord,-Sqrt(y_coord_sq),1];
+      Append(~CM_points_top_curve,C!tup1);
+      Append(~CM_points_top_curve,C!tup2);
+    else
+      if Type(Parent(x_coord)) eq RngInt then F:=Rationals(); else F:=Parent(x_coord); end if;
+      Pol<t>:=PolynomialRing(F);
+      Fext:=ext< F | t^2 - F!y_coord_sq >;
+      AF:=AbsoluteField(Fext);
+      tup1:= [AF!x_coord,AF!Fext.1,1];
+      tup2:= [AF!x_coord,-AF!Fext.1,1];
+      Append(~CM_points_top_curve,CoercePointAnyField(C,tup1));
+      Append(~CM_points_top_curve,CoercePointAnyField(C,tup2));
+      //Append(~CM_points_hypquo,CoercePointAnyField(hyp_quotientcurve,[x_coord,y_coord,1]));
+    end if;
+  end for;
+
+  s:=ShimDBRecord(D,N,W : version:=1);
+  proj:=s`ShimProjectionEquations;
+  cm_points:=[* MapPointAnyField(proj,Q) : Q in CM_points_top_curve *];
+  return cm_points;
+
+  /*for pt in CM_points_hypquo do
+    pt;
+    hyp_projK:=ChangeRingMap(hyp_proj,Parent(Eltseq(pt)[1]));
+    PullbackPointsWithEquation(hyp_projK,[*pt*]);
+  end for;*/
+
+
+/*  map< C -> proj_hyp | [x[1],x[2]^2,x[3]] >;
+  dp:=DefiningPolynomials(gf);
+  new_hypproj:= map<Domain(s`ShimProjectionEquations) -> Codomain(Inverse(m)) | dp>;
+*/
+
+end intrinsic;
+
+intrinsic ShimCMPointsRationalGuoYang(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
+ {}
+ list:= ShimCMPointsGuoYang(D,N,W);
+ return Setseq(Set([ A : A in list | Parent(A[1]) eq Rationals() ]));
+end intrinsic;
 
 //curves which are not hyperelliptic over Q
 
@@ -500,8 +569,6 @@ CMpoints := <
 //g := x^2+3;
 //L := SplittingField(f*g);
 //a := Roots(f,L)[1,1];
-//b := Roots(g,L)[1,1]; 
+//b := Roots(g,L)[1,1];
 //d := (9+a)*(-9+b)/42;
 //MinimalPolynomial(L!d);
-
-

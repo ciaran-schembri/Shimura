@@ -130,6 +130,15 @@ end intrinsic;
 
 
 
+intrinsic AtkinLehnerInvolution(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
+  {return the atkin lehner involution}
+  assert #W eq 2;
+  list:=FullAutomorphismListFromData(D,N);
+  maps:=[ A : A in list | A[1] eq W ][1];
+  map := [ A[2] : A in maps[2] | A[1] eq W[2] ][1];
+  return map;
+end intrinsic;
+
 //AutomorphismAffineToProjective:=function(C,W);
   //ffC<x,y>:=FunctionField(C);
   //Cpoint := GenericPoint(C);
@@ -244,8 +253,8 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   if W eq [1] then
     s`ShimGenus:=Genus(C);
     s`ShimModel:=C;
-    s`ShimTopCurve:="NA";
-    s`ShimProjectionEquations:="NA";
+    s`ShimTopCurve:=C;
+    s`ShimProjectionEquations:=IdentityAutomorphism(C);
     return s;
   end if;
 
@@ -278,6 +287,7 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
            assert Cquo_genus eq 0;
         end if;
         s`ShimProjectionEquations:=proj;
+
 
         if Cquo_genus ge 2 then
           fx:=HyperellipticPolynomials(SimplifiedModel(ReducedMinimalWeierstrassModel(Cquo)));
@@ -323,11 +333,24 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
           //return <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>;
           return s;
         else
-          s`ShimModel:=Cquo;
-          s`ShimGenus:=Cquo_genus;
-          //s`ShimProjectionEquations:=proj;
-          //return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
-          return s;
+          if Type(Cquo) eq Crv then
+            assert Type(Cquo) eq Crv;
+            con,con_map:=Conic(Cquo);
+            s`ShimModel:=con;
+            gf:=proj*con_map;
+            dp:=DefiningPolynomials(gf);
+            //dpi := InverseDefiningPolynomials(gf);
+            s`ShimProjectionEquations := map<Domain(proj) -> Codomain(con_map) | dp>;
+            s`ShimGenus:=Cquo_genus;
+            //s`ShimProjectionEquations:=proj;
+            //return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
+            return s;
+          elif Type(Cquo) eq CrvCon then
+            s`ShimModel:=Cquo;
+            s`ShimProjectionEquations:= proj;
+            s`ShimGenus:=Cquo_genus;
+            return s;
+          end if;
         end if;
       catch e
 
@@ -351,7 +374,9 @@ intrinsic IntermediateQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   ShimLevel,
   ShimAtkinLehner,
   ShimGenus,
-  ShimModel
+  ShimModel,
+  ShimTopCurve,
+  ShimProjectionEquations
   >;
   s := rec< RF | >;
 
@@ -409,7 +434,12 @@ intrinsic IntermediateQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
       s`ShimModel:=Cquo;
       s`ShimGenus:=Cquo_genus;
       s`ShimTopCurve:=C;
-      s`ShimProjectionEquations:=proj*proj_init;
+      assert Type(Cquo) eq Crv;
+      con,con_map:=Conic(Cquo);
+      s`ShimModel:=con;
+      gf:=proj_init*proj*con_map;
+      dp:=DefiningPolynomials(gf);
+      s`ShimProjectionEquations := map<Domain(proj_init) -> Codomain(con_map) | dp>;
       return s;
     end if;
   end for;
@@ -450,66 +480,78 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   quotient_curve:=s`ShimModel;
   wd:=s`ShimAtkinLehner;
   genus:=s`ShimGenus;
+  quotient_proj:=s`ShimProjectionEquations;
 
   top_curve:=ShimuraCurveModel(disc,level,[1]);
-  ambient_size:=#Names(Ambient(top_curve));
+  ambient_size_top:=#Names(Ambient(top_curve));
 
-/*  for i in [2..#curve_quotients] do
-    quotient_list:=curve_quotients[i];
-    quotient_list;
-    quotient_curve:=quotient_list[2];
-    wd:=quotient_list[1];
-    if #wd le 2 then
-      genus:=quotient_list[3];
-      quotient_proj:=quotient_list[5];
-*/
-      filename:=Sprintf("ShimDB/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
+  filename:=Sprintf("ShimDB-v1/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
 
-      if wd eq [1] then
-        if ambient_size eq 2 then
-          Write(filename,"A2<x,y>:=AffineSpace(Rationals(),2);");
-        else
-          Write(filename,"A3<x1,y1,z1>:=AffineSpace(Rationals(),3);");
-        end if;
-      end if;
+/*  if wd eq [1] then
+    if ambient_size_top eq 2 then
+      Write(filename,"A2<x,y>:=AffineSpace(Rationals(),2);");
+    else
+      Write(filename,"A3<x1,y1,z1>:=AffineSpace(Rationals(),3);");
+    end if;
+  end if;*/
 
-      Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-      Write(filename,"RF := recformat< n : Integers(),\n ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel\n >;");
-      Write(filename,"s := rec< RF | >;\n");
-      Write(filename,Sprintf("s`ShimLabel := \"%o.%o-%o\";\n", disc, level, sprint(wd)));
-      Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-      Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-      Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-      Write(filename,Sprintf("%o %o;\n", "s`ShimGenus := ", genus));
+  Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
+  Write(filename,"RF := recformat< \n ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel,\n ShimTopCurve,\n ShimProjectionEquations\n>;");
+  Write(filename,"s := rec< RF | >;\n");
+  Write(filename,Sprintf("s`ShimLabel := \"%o.%o-%o\";\n", disc, level, sprint(wd)));
+  Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
+  Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
+  Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
+  Write(filename,Sprintf("%o %o;\n", "s`ShimGenus := ", genus));
 
-      if wd eq [1] then
-        Write(filename,"return s;\n");
-        return "";
-      end if;
+  /*if wd eq [1] then
+    Write(filename,"return s;\n");
+    return "";
+  end if;*/
 
-      if genus ge 2 then
-        assert Type(quotient_curve) eq CrvHyp;
-        f,g:=HyperellipticPolynomials(quotient_curve);
-        Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);\n",f,g));
-        Write(filename,"return s;\n");
-      elif genus eq 1 then
-        amb_size:=#Names(Ambient(quotient_curve));
-        if amb_size eq 3 then
-          Write(filename,"P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);");
-          Write(filename,Sprintf("s`ShimModel := Curve(P2,%o);\n",Equations(quotient_curve)));
-        else
-          Write(filename,"P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);");
-          Write(filename,Sprintf("s`ShimModel := Curve(P3,%o);\n",Equations(quotient_curve)));
-        end if;
-        Write(filename,"return s;\n");
-      else
-        Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-        P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
-        g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
-        Write(filename,Sprintf("s`ShimModel := Conic(P2,%o); \n", g0equation));
-        Write(filename,"return s;\n");
-      end if;
+  P2<[x]>:=Ambient(s`ShimTopCurve);
 
+  if genus ge 2 then
+    if IsHyperelliptic(quotient_curve) then
+      Write(filename,Sprintf("s`ShimModel := %m;", quotient_curve));
+    else
+      assert W eq [1];
+      Write(filename,Sprintf("AS<[x]> := AffineSpace(RationalField(), %o);", ambient_size_top));
+      Write(filename,Sprintf("s`ShimModel:=Curve(AS, %o);", Equations(s`ShimTopCurve)));
+    /*assert Type(quotient_curve) eq CrvHyp;
+    f,g:=HyperellipticPolynomials(quotient_curve);
+    Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);\n",f,g));*/
+    end if;
+  elif genus eq 1 then
+    amb_size:=#Names(Ambient(quotient_curve));
+    if amb_size eq 3 then
+      Write(filename,"P2<X,Y,Z>:=ProjectiveSpace(Rationals(),2);");
+      Write(filename,Sprintf("s`ShimModel := Curve(P2,%o);\n",Equations(quotient_curve)));
+    else
+      Write(filename,"P3<X,Y,Z,T>:=ProjectiveSpace(Rationals(),3);");
+      Write(filename,Sprintf("s`ShimModel := Curve(P3,%o);\n",Equations(quotient_curve)));
+    end if;
+  else
+    Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
+    P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
+    g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
+    Write(filename,Sprintf("s`ShimModel := Conic(P2,%o); \n", g0equation));
+  end if;
+
+  if Type(top_curve) eq CrvHyp then
+    //Write(filename,"A2<x1,y1> := AffineSpace(Rationals(),2);");
+    Write(filename,Sprintf("s`ShimTopCurve := %m;", top_curve));
+    Write(filename,"P2<[x]>:=Ambient(s`ShimTopCurve);");
+  else
+    if W ne [1] then
+      Write(filename,Sprintf("AS<[x]> := AffineSpace(RationalField(), %o);", ambient_size_top));
+    end if;
+    Write(filename,Sprintf("s`ShimTopCurve:=Curve(AS, %o);", Equations(s`ShimTopCurve)));
+  end if;
+
+  Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
+
+  Write(filename,"return s;\n");
   return "";
 
 end intrinsic;

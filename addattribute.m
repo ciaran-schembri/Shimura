@@ -2,7 +2,7 @@
 intrinsic ShimAddAttributes(filename::MonStgElt, attributes::SeqEnum) -> Any
   {make a new file in ShimDB-v2 with the attributes of the form [<Shim, data>], with all being strings
   Note that it will write from ShimDB to ShimDB-v2 so keep this in the right place}
-  file:=Sprintf("ShimDB/%o",filename);
+  file:=Sprintf("ShimDB-v1/%o",filename);
 
   new_file:=Sprintf("ShimDB-v2/%o",filename);
   r:=Open(file,"r");

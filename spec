@@ -4,6 +4,8 @@
   thelist.m
   ProtoButton.m
   addattribute.m
+  CM1equation.m
+  CMfunctions.m
 
   lmfdb_upload
   {
