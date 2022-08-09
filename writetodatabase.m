@@ -35,8 +35,8 @@ for filename in filenames do
   file;
   FP:=Read(file);
   attr:=eval FP;
-  if attr`ShimAtkinLehner ne [1] then
-  //new_attributes:= [ <"ShimRationalPoints","\"{}\"">, <"ShimTest", "\"NA\""> ];
+  if attr`ShimAtkinLehner eq [1] then
+/*  //new_attributes:= [ <"ShimRationalPoints","\"{}\"">, <"ShimTest", "\"NA\""> ];
     X:=attr`ShimModel;
     ShimRationalPoints, ShimPointsProvedCorrect, ShimPointsNotes := RationalPointsAnyGenus(X);
     ShimPointsEverywhereLocally:= HasAdelicPointsAnyGenus(X);
@@ -60,6 +60,17 @@ for filename in filenames do
     <"ShimPointsEverywhereLocally", Sprint(ShimPointsEverywhereLocally)>
     ];
     ShimAddAttributes(filename, new_attributes);
+
+  else*/
+  new_attributes:=
+  [
+    <"ShimRationalPoints", Sprint({})>,
+    <"ShimPointsProvedCorrect", Sprint(true)>,
+    <"ShimPointsNotes", Sprintf("\"%o\"","NA")>,
+    <"ShimPointsEverywhereLocally", Sprintf("\"%o\"","NA")>
+    ];
+    ShimAddAttributes(filename, new_attributes);
+
   end if;
 end for;
 

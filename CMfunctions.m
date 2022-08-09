@@ -6,14 +6,18 @@ intrinsic CMOrder(s::RngIntElt,f::RngIntElt) -> Any
   {return the CM order in Q(sqrt(-s)) of conductor f}
   discs_conds:=  [
     [ 3, 1 ],
+    //[ 3, 2 ],
+    [ 3, 3 ],
     [ 3, 4 ],
     [ 3, 5 ],
     [ 3, 7 ],
     [ 4, 1 ],
+    //[ 4, 2 ],
     [ 4, 3 ],
     [ 4, 4 ],
     [ 4, 5 ],
     [ 7, 1 ],
+    [ 7, 2 ],
     [ 7, 4 ],
     [ 8, 1 ],
     [ 8, 2 ],
@@ -69,46 +73,50 @@ end intrinsic;
 intrinsic CMOrdersList() -> Any
   {return the full set of class number 1 and 2 fields along with their hilbert class field}
   //discs_Elkies:=[4,8,24,84,40,51,19,120,52,132,75,168,43,228,88,123,100,147,312,67,148,372,408,267,232,708,163];
-discs_conds:=  [
-  [ 3, 1 ],
-  [ 3, 4 ],
-  [ 3, 5 ],
-  [ 3, 7 ],
-  [ 4, 1 ],
-  [ 4, 3 ],
-  [ 4, 4 ],
-  [ 4, 5 ],
-  [ 7, 1 ],
-  [ 7, 4 ],
-  [ 8, 1 ],
-  [ 8, 2 ],
-  [ 8, 3 ],
-  [ 11, 1 ],
-  [ 11, 3 ],
-  [ 15, 1 ],
-  [ 15, 2 ],
-  [ 19, 1 ],
-  [ 20, 1 ],
-  [ 24, 1 ],
-  [ 35, 1 ],
-  [ 40, 1 ],
-  [ 43, 1 ],
-  [ 51, 1 ],
-  [ 52, 1 ],
-  [ 67, 1 ],
-  [ 88, 1 ],
-  [ 91, 1 ],
-  [ 115, 1 ],
-  [ 123, 1 ],
-  [ 148, 1 ],
-  [ 163, 1 ],
-  [ 187, 1 ],
-  [ 232, 1 ],
-  [ 235, 1 ],
-  [ 267, 1 ],
-  [ 403, 1 ],
-  [ 427, 1 ]
-  ];
+  discs_conds:=  [
+    [ 3, 1 ],
+    //[ 3, 2 ],
+    [ 3, 3 ],
+    [ 3, 4 ],
+    [ 3, 5 ],
+    [ 3, 7 ],
+    [ 4, 1 ],
+    //[ 4, 2 ],
+    [ 4, 3 ],
+    [ 4, 4 ],
+    [ 4, 5 ],
+    [ 7, 1 ],
+    [ 7, 2 ],
+    [ 7, 4 ],
+    [ 8, 1 ],
+    [ 8, 2 ],
+    [ 8, 3 ],
+    [ 11, 1 ],
+    [ 11, 3 ],
+    [ 15, 1 ],
+    [ 15, 2 ],
+    [ 19, 1 ],
+    [ 20, 1 ],
+    [ 24, 1 ],
+    [ 35, 1 ],
+    [ 40, 1 ],
+    [ 43, 1 ],
+    [ 51, 1 ],
+    [ 52, 1 ],
+    [ 67, 1 ],
+    [ 88, 1 ],
+    [ 91, 1 ],
+    [ 115, 1 ],
+    [ 123, 1 ],
+    [ 148, 1 ],
+    [ 163, 1 ],
+    [ 187, 1 ],
+    [ 232, 1 ],
+    [ 235, 1 ],
+    [ 267, 1 ],
+    [ 403, 1 ],
+    [ 427, 1 ]
+    ];
   Rx<x>:=PolynomialRing(Rationals());
   list:=[* *];
   for T in discs_conds do
@@ -128,6 +136,8 @@ discs_conds:=  [
   return list;
 
 end intrinsic;
+
+
 
 intrinsic CMFieldsList() -> Any
   {return the list of CM-fields}
@@ -287,7 +297,15 @@ intrinsic CMFieldOfDefinitionALQuotient(R::RngOrd, D::RngIntElt, N::RngIntElt, m
         auts:=[ExtendAutomorphism(A(bb),HKabs)];
         Hfix:=FixedField(HKabs,auts);
       elif Integers()!(m/mr) eq DNast then
-        aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,DNast*Norm(m1(idl))>) eq D ][1];
+        if #Cl eq 1 then
+          aa := ideal< R | 1 >;
+          //[ Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(idl meet R)>) : idl in PrimesUpTo(30,K) ];
+          assert Discriminant(QuaternionAlgebra<Rationals()|-s,DNast*Norm(aa)>) eq D;
+        else
+          aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,DNast*Norm(m1(idl))>) eq D ];
+          assert #aa ne 0;
+          aa:=aa[1];
+        end if;
         auts:=[ ExtendAutomorphism(A(bb*aa),HKabs)*cc ];
         Hfix:=FixedField(HKabs,auts);
       else
@@ -296,11 +314,25 @@ intrinsic CMFieldOfDefinitionALQuotient(R::RngOrd, D::RngIntElt, N::RngIntElt, m
     else
       if Integers()!(m/mr) eq 1 then
         //[ Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(idl)>) : idl in PrimesUpTo(1000,K) ];
-        aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(m1(idl))>) eq D ][1];
+        if #Cl eq 1 then
+          aa := ideal< R | 1 >;
+          assert Discriminant(QuaternionAlgebra<Rationals()|-s,DNast*Norm(aa)>) eq D;
+        else
+          aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(m1(idl))>) eq D ];
+          assert #aa ne 0;
+          aa:=aa[1];
+        end if;
         auts := [ cc*ExtendAutomorphism(A(aa),HKabs), ExtendAutomorphism(A(bb),HKabs) ];
         Hfix:=FixedField(HKabs,auts);
       else
-        aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(m1(idl))>) eq D ][1];
+        if #Cl eq 1 then
+          aa := ideal< R | 1 >;
+          assert Discriminant(QuaternionAlgebra<Rationals()|-s,DNast*Norm(aa)>) eq D;
+        else
+          aa:=[ m1(idl) : idl in Set(Cl) | Discriminant(QuaternionAlgebra<Rationals()|-s,Norm(m1(idl))>) eq D ];
+          assert #aa ne 0;
+          aa:=aa[1];
+        end if;
         auts:= [ cc*ExtendAutomorphism(A(aa),HKabs) ];
         Hfix:=FixedField(HKabs,auts);
       end if;
@@ -382,6 +414,22 @@ intrinsic RationalCMPointsCardinality(R::RngOrd, D::RngIntElt,N::RngIntElt,m::Rn
   end if;
 end intrinsic;
 
+
+intrinsic RationalCMPointsCardinality(K::FldNum, D::RngIntElt,N::RngIntElt,m::RngIntElt) -> RngIntElt
+  {the number of CM points for the imaginary quadratic field K}
+  cm_list:=CMOrdersList();
+  cmK:=0;
+  for R in cm_list do
+    if IsIsomorphic(NumberField(R[1]),K) then
+      cm_no:=RationalCMPointsCardinality(R[1],D,N,m);
+      cmK:=cmK+cm_no;
+    end if;
+  end for;
+  return cmK;
+end intrinsic;
+
+
+
 intrinsic RationalCMPointsCardinalityAllOrders(D::RngIntElt, N::RngIntElt, m::RngIntElt) -> RngIntElt
   {total number of CM points for all orders}
   cm_list:=CMOrdersList();
@@ -418,11 +466,78 @@ intrinsic RationalCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> List
       end if;
     end for;*/
 
+  cm_pt_orders:=[* *];
+  for ord in cm_list do
+    if RationalCMPointsCardinality(ord[1],D,N,m) ne 0 then
+      Append(~cm_pt_orders, ord);
+    end if;
+  end for;
+
   cm_points_proven:=[* *];
   cm_points_unproven:=[* *];
 
-  for R in cm_list do
+  points_init:=[* *];
+  for Q in Qs do
+    Ps:=PullbackPointsWithEquation(proj,[* Q *]);
+    if Ps ne [* *] then
+      QP:=Parent(Eltseq(Ps[1])[1]);
+      QP_Kinit:=[];
+      for R in cm_pt_orders do
+        if IsSubfield(QP,R[2]) then
+          disc:=FundamentalDiscriminant(Discriminant(NumberField(R[1])));
+          //K:=QuadraticField(disc);
+          Append(~QP_Kinit,disc);
+        end if;
+      end for;
+      if QP_Kinit ne [] then
+        QP_K:=Setseq(Set(QP_Kinit));
+        assert #QP_K eq 1;
+        Qpts:=[* *];
+        Append(~Qpts,Q);
+        Append(~Qpts,QP_K[1]);
+        Append(~points_init,Qpts);
+      end if;
+    end if;
+  end for;
+
+/*  Kdiscs_init:=Setseq(Set([ FundamentalDiscriminant(Discriminant(A[2])) : A in points_init ]));
+  CM_fields:=[];
+  CM_field_discs:=[];
+  for fld in &cat([ A[2] : A in points_init ]) do
+    if FundamentalDiscriminant(Discriminant(fld)) notin CM_field_discs then
+      Append(~CM_field_discs,FundamentalDiscriminant(Discriminant(fld)));
+      Append(~CM_fields,fld);
+    end if;
+  end for;*/
+
+  Rz<z>:=PolynomialRing(Rationals());
+  discs:= Setseq(Set([ A[2] : A in points_init]));
+  cm_fields:=[ NumberField(z^2 - d) : d in discs ];
+  for Ks in cm_fields do
+    cm_Ks_total:=RationalCMPointsCardinality(Ks,D,N,m);
+    cm_Ks_points:=[ A[1] : A in points_init | A[2] eq FundamentalDiscriminant(Discriminant(Ks)) ];
+    assert #cm_Ks_points ge cm_Ks_total;
+    if #cm_Ks_points eq cm_Ks_total then
+      Append(~cm_points_proven, [* cm_Ks_points, Ks *]);
+    else
+      Append(~cm_points_unproven, [* cm_Ks_points, Ks *]);
+    end if;
+  end for;
+
+  assert #cm_points_unproven eq 0;
+
+  cm_points_proven2:=[* *];
+  for cm in cm_points_proven do
+    for pt in cm[1] do
+      Append(~cm_points_proven2, [* pt, FundamentalDiscriminant(Discriminant(cm[2])) *]);
+    end for;
+  end for;
+
+/*  for R in cm_list do
+    K:=NumberField(R[1]);
+    cm_numberK:=RationalCMPointsCardinality(K,D,N,m);
     cm_number:=RationalCMPointsCardinality(R[1],D,N,m);
+
     if cm_number ne 0 then
       RCMmaybe:=[* *];
       points_init:=[];
@@ -444,15 +559,15 @@ intrinsic RationalCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> List
       if #RCMmaybe[2] gt cm_number then
         for Q in RCMmaybe[2] do
           P1:=Eltseq(PullbackPointsWithEquation(proj,[*Q*])[1]);
-          IsCMPoint(R[1],D,N,P1);
+          //IsCMPoint(R[1],D,N,P1);
         end for;
         Append(~cm_points_unproven,RCMmaybe);
       elif #RCMmaybe[2] eq cm_number then
         Append(~cm_points_proven,RCMmaybe);
       end if;
     end if;
-  end for;
-  return cm_points_proven, cm_points_unproven;
+  end for;*/
+  return cm_points_proven2, cm_points_unproven;
 end intrinsic;
 
 intrinsic RationalNonCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> SetEnum
@@ -460,9 +575,12 @@ intrinsic RationalNonCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> SetEnum
   s:=ShimDBRecord(D,N,[1,m] : version:=2);
   points:=s`ShimRationalPoints;
   cmpr,cmun:=RationalCMPoints(D,N,m);
-  cm_points_init:=cmpr cat cmun;
-  cm_points:=[];
-  for pt in cm_points_init do
+  assert #cmun eq 0;
+  cm_points:=[ A[1] : A in cmpr ];
+
+  non_cm_points:= [ A : A in Setseq(points) | A notin cm_points ];
+  return non_cm_points;
+/*  for pt in cm_points_init do
     for p in pt do
       if Type(p) eq SeqEnum then
         Append(~cm_points,p);
@@ -477,11 +595,11 @@ intrinsic RationalNonCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> SetEnum
     end if;
   end for;
 
-  return Set(noncm);
+  return Set(noncm);*/
 end intrinsic;
 
 
-intrinsic IsCMPoint(R::RngOrd,D::RngIntElt,N::RngIntElt,P::SeqEnum) -> MonStgElt
+/*intrinsic IsCMPoint(R::RngOrd,D::RngIntElt,N::RngIntElt,P::SeqEnum) -> MonStgElt
   {}
   mstar:= DEE(R,D)*ENNstar(R,N);
   s:=-FundamentalDiscriminant(Discriminant(NumberField(R)));
@@ -535,7 +653,7 @@ intrinsic IsCMPoint(R::RngOrd,D::RngIntElt,N::RngIntElt,P::SeqEnum) -> MonStgElt
     return "inconclusive";
   end if;
 
-end intrinsic;
+end intrinsic;*/
 
 
 
@@ -609,6 +727,49 @@ w7P2 eq Parent(w7P2)!Eltseq(P2);
 
 CMPointsCardinality(CMOrder(7,1)[1],D,N);
 CMPointsCardinality(CMOrder(7,4)[1],D,N);
+
+
+
+for R1 in CMOrdersList() do
+  for R2 in CMOrdersList() do
+    HK1:=AbsoluteField(R1[2]);
+    HK2:=AbsoluteField(R2[2]);
+    if not(IsIsomorphic(HK1,HK2)) then
+      if IsSubfield(HK1,HK2) then
+        <R1[1],R2[1]>;
+      end if;
+    end if;
+  end for;
+end for;
+
+for R in CMOrdersList() do
+  HK:=AbsoluteField(R[2]);
+  if Degree(HK) eq 4 then
+  for filename in ShimDBFilenames() do
+    s:=ShimDBRead(filename : version:=2);
+    W:=s`ShimAtkinLehner;
+    if #W eq 2 then
+      if s`ShimGenus ge 1 and Type(s`ShimRationalPoints) eq SetEnum
+        and s`ShimRationalPoints ne {} then
+          D:=s`ShimDiscriminant; N:=s`ShimLevel;
+            if N eq 1 then
+              if RationalCMPointsCardinality(R[1],D,N,W[2]) ne 0 then
+                for S in CMOrdersList() do
+                  HS:=AbsoluteField(S[2]);
+                  if Degree(HS) eq 2 and IsSubfield(HS,HK) and RationalCMPointsCardinality(S[1],D,N,W[2]) ne 0 then
+                    R; D; N; W; S;
+                  end if;
+                end for;
+              end if;
+            end if;
+      end if;
+    end if;
+  end for;
+end if;
+end for;
+
+
+
 */
 
 

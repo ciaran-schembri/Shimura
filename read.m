@@ -26,6 +26,10 @@ intrinsic ShimDBFilenames( : version:=2) -> SeqEnum
   command := Sprintf("ls %o-v%o", "ShimDB",version);
   ls := Pipe(command, "");
   filenames := Split(ls, "\n");
+
+  atkinlehners:= [  (eval Sprintf("[ %o ]",Split(Split(file,"(")[2],")")[1])) cat (eval Split(Split(file,"-")[4],".")[1]) : file in filenames ];
+  ParallelSort(~atkinlehners, ~filenames);
+
   return filenames;
 end intrinsic;
 
