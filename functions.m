@@ -1,19 +1,16 @@
-//load "rankbounds_modified.m";
-//AttachSpec("g3hyptorsion-master/spec");
-//Attach("g3hyptorsion-master/torsion3.m");
-//Attach("g3hyptorsion-master/transformations.m");
-//import "g3hyptorsion-master/transformations.m": KummerTransformation;
-//etSeed(2594609949);
-
-//Once we understand how to do this we can do it for all the curves in Guo-Yang and make a list
-//with information: <D, curve f, Atkin-Lehners, genus of each quotient, rank of each quotient >.
-SetDebugOnError(true);
+//These are the intrinsics that will make defining equations for the curve quotients
+// from the input data of a model for X_0(D,N) and an Atkin-Lehner involution.
 
 
 
 
 intrinsic GYData(D::RngIntElt,N::RngIntElt) -> Any
-  {}
+  {Input:
+    D - discriminant of quaternion algebra
+    N - Level
+  Ouput:
+    data from Guo-Yang associated to X_0(D,N) in the form of
+    <D, N, X_0(D,N) defining equations, Atkin-Lehners> }
   for list in GYList() do
     if list[1] eq D and list[2] eq N then
       return list;
@@ -21,13 +18,60 @@ intrinsic GYData(D::RngIntElt,N::RngIntElt) -> Any
   end for;
 end intrinsic;
 
+intrinsic MultiplyAtkinLehners(W::SeqEnum) -> RngIntElt
+  {Input:
+    W - List of Atkin Lehner involutions w_m, indexed by m
+  Output:
+    n, where w_n is the product of all w_m in W}
+  wm:=Integers()!1;
+  for m in W do
+    m1:=Integers()!m;
+    wm := Integers()!(wm*m1/(GCD(wm,m1)^2));
+  end for;
+  return Integers()!wm;
+end intrinsic;
+
+intrinsic AtkinLehnerGenerators(W::SeqEnum) -> SeqEnum
+  {
+  Input:
+    W - a subgroup of Atkin Lehner involutions w_m, indexed by m.
+    assumes the m are sorted by size.
+  Ouput:
+    Generators w_m for W, indexed by m.}
+  if #W eq 1 then
+    return [1];
+  elif #W eq 2 then
+    assert 1 in W;
+    return Exclude(W,1);
+  elif #W eq 4 then
+    assert 1 in W;
+    Exclude(~W,1);
+    return [W[1],W[2]];
+  elif #W eq 8 then
+    Exclude(~W,1);
+    newW:=[W[1],W[2]];
+    for i in [3..#W] do
+      if MultiplyAtkinLehners(newW) ne W[i] then
+        Append(~newW,W[i]);
+        return newW;
+      end if;
+    end for;
+  end if;
+end intrinsic;
+
+
+
+
 
 intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
-  {intput: discriminant D, level N
-   output: full list of <[Atkin-Lehner, Automorphisms>]
-  Given a set of generators of the automorphism group
-  return all subgroups of the full automorphism group as a list, with Atkin-Lehner descriptions
-  Cpols are the polynomials defining C; list is a list of automorphisms.}
+  {Input:
+    D - discriminant level N
+    N - level
+  Output:
+    for each subgroup W of the Atkin-Lehner group it returns
+    < [W, [ [m, w_m] : m in W ] >
+    where w_m : X_0(D,N) -> X_0(D,N) is the defining equation of the involution
+    }
   A2<x,y>:=AffineSpace(Rationals(),2);
   A3<x1,y1,z1> := AffineSpace(Rationals(),3);
 
@@ -42,7 +86,6 @@ intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
     R<x> := PolynomialRing(Rationals());
     ff := R!Evaluate(Cpols[1],[x,0]);
     C:=HyperellipticCurve(ff);
-    //Cproj<X,Y,T>:=ProjectiveClosure(C);
   else
     C:=Curve(A3,Cpols);
     Cproj<X1,Y1,Z1,T1>:=ProjectiveClosure(C);
@@ -57,7 +100,6 @@ intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
       ww:=w_init cat [1];
       autw:=iso< C -> C | ww, ww >;
       Append(~involutions_init,<w[1], autw>);
-
     else
       autw:= ProjectiveClosure(iso< C -> C | eval(w[2]), eval(w[2])>);
       Append(~involutions_init,<w[1], autw>);
@@ -73,12 +115,12 @@ intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
   involutions_init:=Setseq(Subsets(Set(involutions_init)));  //make the set of all possible subsets of involutions to compose
 
   //This creates all individual involutions
-  involutions:=Setseq(Set([ <SquareFreeFactorization(&*[ w[1] : w in SetToIndexedSet(W) ]), &*[ w[2] : w in SetToIndexedSet(W) ]> : W in involutions_init | not(IsEmpty(W)) ]));
+  involutions:=Setseq(Set([ <MultiplyAtkinLehners([ w[1] : w in SetToIndexedSet(W) ]), &*[ w[2] : w in SetToIndexedSet(W) ]> : W in involutions_init | not(IsEmpty(W)) ]));
 
-  assert #involutions eq #Divisors(curve_data[1]*curve_data[2]);
+  if N eq 1 then divs:=4; else divs:=8; end if;
+  assert #involutions eq divs;
   quotient_names:=[ w[1] : w in involutions ];
   ParallelSort(~quotient_names, ~involutions);
-  //Remove(~involutions,1);
 
   //Create subgroups of automorphisms from the list of involutions.
   involution_subsets := [ Setseq(A) : A in Setseq(Subsets(Set(involutions))) | #A ne 0 ];
@@ -109,8 +151,12 @@ intrinsic FullAutomorphismListFromData(D::RngIntElt,N::RngIntElt) -> Any
 end intrinsic;
 
 intrinsic AllAtkinLehners(D::RngIntElt, N::RngIntElt) -> SeqEnum
-  {input: discriminant D, level N
-  output: list of all Atkin-Lehners}
+  {input:
+    D - discriminant
+    N - level
+  output:
+    list of all Atkin-Lehner subgroups W where W is a sequence
+    of integers m representing w_m}
   list:=FullAutomorphismListFromData(D,N);
   sort:=function(A,B);
     if #A eq #B then
@@ -131,90 +177,33 @@ end intrinsic;
 
 
 intrinsic AtkinLehnerInvolution(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
-  {return the atkin lehner involution}
+  {
+  Input:
+    D - discriminant
+    N - level
+    W - sequence representing an Atkin-Lehner (must have size 2) and contain 1.
+  Output:
+    Atkin-Lehner involution w_m where w_m : X_0(D,N) -> X_0(D,N) is the defining equation}
   assert #W eq 2;
+  assert W[1] eq 1;
   list:=FullAutomorphismListFromData(D,N);
   maps:=[ A : A in list | A[1] eq W ][1];
   map := [ A[2] : A in maps[2] | A[1] eq W[2] ][1];
   return map;
 end intrinsic;
 
-//AutomorphismAffineToProjective:=function(C,W);
-  //ffC<x,y>:=FunctionField(C);
-  //Cpoint := GenericPoint(C);
-  //CW:=eval(W);
-  //auts:=Automorphisms(C);
 
-  //wds:=[ aut : aut in auts | Coordinates(aut(Cpoint)) eq CW ];
-  //assert #wds eq 1;
-  //return wds[1];
-//end function;
-
-
-
-intrinsic HasAdelicPointsRSY(D::.,m::.) -> Any
-  {}
-  if IsPrime(m) then
-     n:=D/m;
-     n:=Integers()!n;
-     if LegendreSymbol(n,m) ne 1 and not(n mod 12 eq 1) and
-       (not(m mod 4 eq 1) or not(n mod 4 eq 1)) then
-       return true;
-     else
-       return false;
-     end if;
-  elif m eq D then
-    return true;
-  else
-    return "somethings wrong";
-  end if;
-end intrinsic;
-
-
-intrinsic AnalyticRankShimuraCurve(C::RngIntElt,DN::RngIntElt) -> Any
-  {}
-  Rz<z>:=PolynomialRing(Integers());
-
-  M:=ModularForms(DN,2);
-  newforms:=Newforms(M);
-  CCforms:= [ ComplexEmbeddings(A[1])[1] : A in newforms ];
-
-  indexnsize:=Set([ [i, #CCforms[i]] : i in [1..#CCforms] ]);
-  powerseq:=[ Setseq(s) : s in Setseq(Subsets(indexnsize)) ];
-  KLindices:=[ A : A in powerseq | A ne [] and &+[ B[2] : B in A ] eq Genus(C) ];
-
-  KLforms:= [ &cat[ CCforms[i[1]] : i in indices ] : indices in KLindices ];
-  assert Set([ #a : a in KLforms]) eq {Genus(C)};
-  LLs:=[ [ LSeries(gg: Precision:=15) : gg in KLlist ] : KLlist in KLforms ];
-
-  Lpolslist:=[];
-  for Llist in LLs do
-    Lpols:=[];
-    for p in PrimesUpTo(100) do
-      if GCD(p,2*DN) eq 1 then
-        pol_init:=&*[ EulerFactor(g,p) : g in Llist ];
-        coefs:=[ Integers()!Round(a) : a in Coefficients(pol_init) ];
-        pol_new:=&+[ coefs[i]*z^(i-1) : i in [1..#coefs] ];
-        Append(~Lpols,pol_new);
-      end if;
-    end for;
-    Append(~Lpolslist,Lpols);
-  end for;
-
-  euler_polsC:=[ EulerFactor(C,p) : p in PrimesUpTo(100) | GCD(2*DN,p) eq 1 ];
-  right_Ls:=[ LLs[i] : i in [1..#KLforms] | euler_polsC eq Lpolslist[i] ];
-  assert #right_Ls eq 1;
-
-  analytic_rank:= #[ a : a in [ Evaluate(LTaylor(Lser,1,0),0) : Lser in right_Ls[1] ] | Abs(a) lt 0.0000000001 ];
-
-  return analytic_rank;
-end intrinsic;
 
 
 
 intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
-  {input: discriminant D, level N, Atkin-lehners W
-  Output: atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms}
+  {Input:
+    D - discriminant
+    N - level
+    W - a subgroup of Atkin Lehner involutions w_m, indexed by m.
+  Output:
+    a record with the data:
+    atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms}
 
   RF := recformat< n : Integers(),
   ShimDiscriminant,
@@ -266,7 +255,7 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
     <206,1,[1,2,103,206]>, <10,23,[ 1, 5, 46, 230 ]>, <10,23,[ 1, 2, 115, 230 ]>,
     <10,23,[ 1, 10, 23, 230 ]>,  <10,23,[ 1, 2, 5, 10, 23, 46, 115, 230 ]>,
     <39,2,[ 1, 2, 3, 6, 13, 26, 39, 78 ]>, <39,2,[ 1, 2, 39, 78 ]>,
-    <39,2,[ 1, 3, 13, 39 ]>,<39,2,[ 1, 6, 26, 39 ]>} then
+    <39,2,[ 1, 3, 13, 39 ]>,<39,2,[ 1, 6, 26, 39 ]>,<39,2,[ 1, 6, 13, 78 ]>} then
     return IntermediateQuotient(D,N,W);
   end if;
 
@@ -296,8 +285,6 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
           assert BadPrimes(Cx) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
           s`ShimModel:=Cquo;
           s`ShimGenus:=Cquo_genus;
-          //<Atkin-lehner, model, genus, rank,projection equations, automorphisms>
-          //return <wd[1], Cquo, Cquo_genus, -1,proj, [ DefiningEquations(aut) : aut in auts ]>;
           return s;
 
         elif Cquo_genus eq 1 then
@@ -318,19 +305,14 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
             else
               Cquo:=Curve(P3, Equations(Cquo));
             end if;
-            //s`ShimProjectionEquations:=proj;
           end if;
 
-          //Cx:="NA";
           EC:=Jacobian(Cquo);
-          //rank:=Rank(EC);
-          //torsion:=GroupName(TorsionSubgroup(EC) : TeX:=true);
           fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
           assert IsIsomorphic(EC,EllipticCurve(fx));
           assert BadPrimes(EC) subset [2] cat PrimeDivisors(curve_data[1]*curve_data[2]);
           s`ShimModel:=Cquo;
           s`ShimGenus:=Cquo_genus;
-          //return <wd[1], Cquo, Cquo_genus,<rank,torsion>,proj,[ DefiningEquations(aut) : aut in auts ]>;
           return s;
         else
           if Type(Cquo) eq Crv then
@@ -339,11 +321,8 @@ intrinsic ShimuraCurveQuotientData(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
             s`ShimModel:=con;
             gf:=proj*con_map;
             dp:=DefiningPolynomials(gf);
-            //dpi := InverseDefiningPolynomials(gf);
             s`ShimProjectionEquations := map<Domain(proj) -> Codomain(con_map) | dp>;
             s`ShimGenus:=Cquo_genus;
-            //s`ShimProjectionEquations:=proj;
-            //return <wd[1], Cquo, Cquo_genus, 0, 0, 0>;
             return s;
           elif Type(Cquo) eq CrvCon then
             s`ShimModel:=Cquo;
@@ -364,10 +343,18 @@ end intrinsic;
 
 
 intrinsic IntermediateQuotient(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
-  {if the quotient doesn't work, assert the hyperelliptic involution is in
-  the group, then take a proper subgroup not containing
-  the hyperelliptic involution, take the quotient by this group, then ask
-  if its geometrically hyperelliptic (if the genus is at least 2).}
+  {This returns the same as ShimuraCurveQuotientData() which will not work for some curves.
+  in this intrinsic we require the atkin-lehner subgroup W contain the hyperelliptic involution.
+  It works by taking an intermediate quotient by a proper subgroup not containing
+  the hyperelliptic involution, and subsequently asking if this quotient
+  is geometrically hyperelliptic (if the genus is at least 2).
+  Input:
+    D - discriminant
+    N - level
+    W - a subgroup of Atkin Lehner involutions w_m, indexed by m.
+    Output:
+      a record with the data:
+      atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms  }
 
   RF := recformat< n : Integers(),
   ShimDiscriminant,
@@ -447,16 +434,23 @@ end intrinsic;
 
 
 intrinsic ShimuraCurveModel(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
-  {input: discriminant D, level N, Atkin-lehners W
-  output: curve quotient X(D,N)/W }
+  {Input:
+    D - discriminant
+    N - level
+    W - a subgroup of Atkin Lehner involutions w_m, indexed by m.
+  Output:
+    The defining equations of the curve quotient X(D,N)/W }
   s:=ShimuraCurveQuotientData(D,N,W);
   return s`ShimModel;
 end intrinsic;
 
 
 intrinsic QuotientList(D::RngIntElt,N::RngIntElt) -> Any
-  {Input: discriminant D, level N
-  output: data of all quotients <atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms>}
+  {Input:
+    D - discriminant
+    N - level
+  Output:
+    data of all quotients <atkin-lehner subgroup W, quotient curve, genus, rank, projection: X --> X/H, automorphisms>}
 
   atkinlehner:= AllAtkinLehners(D,N);
 
@@ -470,7 +464,14 @@ end intrinsic;
 
 
 intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
-  {}
+  {Input:
+    D - discriminant
+    N - level
+    W - a subgroup of Atkin Lehner involutions w_m, indexed by m.
+  Output:
+    this intrinsic writes the attributes of the curves X_0(D,N)/W to a file with
+    filename Shim-X(D,N)-g?-W.m
+}
 
   s:=ShimuraCurveQuotientData(D,N,W);
   CMpoints:=[];
@@ -487,13 +488,6 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
 
   filename:=Sprintf("ShimDB-v1/Shim-X(%o,%o)-g%o-%o.m",disc,level,genus,sprint(wd));
 
-/*  if wd eq [1] then
-    if ambient_size_top eq 2 then
-      Write(filename,"A2<x,y>:=AffineSpace(Rationals(),2);");
-    else
-      Write(filename,"A3<x1,y1,z1>:=AffineSpace(Rationals(),3);");
-    end if;
-  end if;*/
 
   Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
   Write(filename,"RF := recformat< \n ShimLabel,\n ShimDiscriminant,\n ShimLevel,\n ShimAtkinLehner,\n ShimGenus,\n ShimModel,\n ShimTopCurve,\n ShimProjectionEquations\n>;");
@@ -504,10 +498,6 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
   Write(filename,Sprintf("%o %o;\n", "s`ShimGenus := ", genus));
 
-  /*if wd eq [1] then
-    Write(filename,"return s;\n");
-    return "";
-  end if;*/
 
   P2<[x]>:=Ambient(s`ShimTopCurve);
 
@@ -518,9 +508,6 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
       assert W eq [1];
       Write(filename,Sprintf("AS<[x]> := AffineSpace(RationalField(), %o);", ambient_size_top));
       Write(filename,Sprintf("s`ShimModel:=Curve(AS, %o);", Equations(s`ShimTopCurve)));
-    /*assert Type(quotient_curve) eq CrvHyp;
-    f,g:=HyperellipticPolynomials(quotient_curve);
-    Write(filename,Sprintf("s`ShimModel := HyperellipticCurve([Rx!%o,Rx!%o]);\n",f,g));*/
     end if;
   elif genus eq 1 then
     amb_size:=#Names(Ambient(quotient_curve));
@@ -539,7 +526,6 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   end if;
 
   if Type(top_curve) eq CrvHyp then
-    //Write(filename,"A2<x1,y1> := AffineSpace(Rationals(),2);");
     Write(filename,Sprintf("s`ShimTopCurve := %m;", top_curve));
     Write(filename,"P2<[x]>:=Ambient(s`ShimTopCurve);");
   else
@@ -555,284 +541,3 @@ intrinsic MakeShimDBObject(D::RngIntElt, N::RngIntElt, W::SeqEnum) -> Any
   return "";
 
 end intrinsic;
-
-
-
-/*          quotient_rank:=quotient_list[4];
-          f,g:=HyperellipticPolynomials(quotient_curve);
-
-          Cx,mapx:=SimplifiedModel(quotient_curve);
-          fx:=HyperellipticPolynomials(Cx);
-          RSY:=HasPointsEverywhereLocally(fx,2);
-          if Type(quotient_rank) ne MonStgElt and quotient_rank eq 0 and genus eq 2 then
-            points:=Chabauty0(Jacobian(Cx));
-            chabauty:="Chabauty0";
-          else
-            points:=Points(Cx : Bound:=10000);
-            chabauty:="No Chabauty";
-          end if;
-          quotient_points := [ Eltseq(Inverse(mapx)(p)) :  p in Setseq(points) ];
-
-          //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
-          /*Write(filename,Sprintf("%o %o;", "s`ShimRank := ", quotient_rank));
-          Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-          Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-          Write(filename,Sprintf("%o %o;", "s`ShimPoints := ", quotient_points));
-          Write(filename,Sprintf("s`ShimChabauty :=%o%o%o;", "\"", chabauty, "\""));
-          Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-
-          if ambient_size eq 3 then
-            Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-          else
-            Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-          end if;
-
-          //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-          Write(filename,Sprintf("s`ShimInvolutions := ["));
-          for involution in quotient_list[6][1..#quotient_list[6]-1] do
-            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-          end for;
-            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-            Write(filename,"return s;");
-          //iso< top_curve -> top_curve | quotient_list[6,2],quotient_list[6,2] >;
-          //Include pullback function
-          //Include 2-cover descent
-
-        elif genus eq 1 then
-          Cx:="NA";
-          CX<[X]>:=quotient_curve;
-          CX_eqn:=Equations(CX);
-
-          EC:=Jacobian(quotient_curve);
-          //need something different if theres no rational point
-          rank:=Rank(EC);
-          torsion:=TorsionSubgroup(EC);
-          tors_group:=GroupName(torsion);
-          f,g:=HyperellipticPolynomials(EC);
-
-          fx:=HyperellipticPolynomials(IntegralModel(WeierstrassModel(EC)));
-          assert IsIsomorphic(EC,EllipticCurve(fx));
-          RSY:=HasPointsEverywhereLocally(fx,2);
-          assert BadPrimes(EC) subset [2] cat PrimeDivisors(disc*level);
-
-          //printf "& & $w_{%o}$ & %o & $\\Z^%o + %o$ & %o & %o & %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), rank, torsion, RSY, ModuliPoint, points, CMpoints, fx;
-          Write(filename,"Rx<x>:=PolynomialRing(Rationals());");
-          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel, ShimAtkinLehner, ShimModel, ShimJacobian, ShimGenus,
-          ShimMordellWeil, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
-          Write(filename,"s := rec< RF | >;\n");
-          Write(filename,Sprintf("PX<[X]>:=ProjectiveSpace(Rationals(),%o);",#X-1));
-
-          Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-          Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-          Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-          Write(filename,Sprintf("s`ShimModel := Curve(PX,%o);",Equations(CX)));
-          Write(filename,Sprintf("s`ShimJacobian := EllipticCurve(Rx!%o,Rx!%o);",f,g));
-          Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-          Write(filename,Sprintf("s`ShimMordellWeil := DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(\"%o\")));",rank,tors_group));
-          Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-          Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-          Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-
-          if ambient_size eq 3 then
-            Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-          else
-            Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-            Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-          end if;
-          //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-          Write(filename,Sprintf("s`ShimInvolutions := ["));
-          for involution in quotient_list[6][1..#quotient_list[6]-1] do
-            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-          end for;
-            Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-            Write(filename,"return s;");
-
-        else
-
-          if Type(quotient_curve) eq MonStgElt then
-
-            infinite_points:="empty";
-            RSY:=false;
-            g0equation:="no equation";
-
-            Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimEquation, ShimGenus,
-            ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints  >;");
-            Write(filename,"s := rec< RF | >;\n");
-            Write(filename,"P3<X,Y,Z>:=PolynomialRing(Rationals(),3)\n");
-
-            Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-            Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-            Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-            Write(filename,Sprintf("%o %o;", "s`ShimEquation := ", g0equation));
-            Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-            Write(filename,Sprintf("%o %o;", "s`ShimInfinitelyManyPoints := ", infinite_points));
-            Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-            Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-            Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-            Write(filename,"return s;");
-
-          else
-
-           Cx:="NA";
-           P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);
-           pts:=HasRationalPoint(Conic(quotient_curve));
-           RSY:=pts;
-           if pts eq true then infinite_points:="infty many points"; else infinite_points:="empty"; end if;
-           g0equation:=Equation(Conic(P2,Equation(Conic(quotient_curve))));
-           assert BadPrimes(Conic(quotient_curve)) subset [2] cat PrimeDivisors(disc*level);
-
-           //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o & %o & $%o$ \\\\ \n", wd[1], Cquo_genus, groupstructure, RSY, ModuliPoint, points, CMpoints, fx;
-           Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimModel, ShimGenus,
-           ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimCMPoints, ShimTopCurve, ShimProjectionEquations, ShimInvolutions  >;");
-           Write(filename,"s := rec< RF | >;\n");
-           Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-
-           Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", disc));
-           Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", level));
-           Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd));
-           Write(filename,Sprintf("s`ShimModel := Conic(P2,%o);", g0equation));
-           Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", genus));
-           Write(filename,Sprintf("s`ShimInfinitelyManyPoints := %o%o%o;", "\"", infinite_points, "\"" ));
-           Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-           Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-           Write(filename,Sprintf("%o %o;\n", "s`ShimCMPoints := ", CMpoints));
-
-           if ambient_size eq 3 then
-             Write(filename,"P2<X,Y,T>:=ProjectiveSpace(Rationals(),2);");
-             Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P2,%o);", Equations(top_curve) ));
-           else
-             Write(filename,"P3<X1,Y1,Z1,T1>:=ProjectiveSpace(Rationals(),3);");
-             Write(filename,Sprintf("s`ShimTopCurve :=  Curve(P3,%o);", Equations(top_curve) ));
-           end if;
-           //Write(filename,Sprintf("s`ShimProjectionEquations := map< s`ShimTopCurve -> s`ShimModel | %o >;", DefiningEquations(quotient_proj) ));
-           Write(filename,Sprintf("s`ShimInvolutions := ["));
-           for involution in quotient_list[6][1..#quotient_list[6]-1] do
-             Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o >, ", involution,involution ));
-           end for;
-             Write(filename,Sprintf("iso< s`ShimTopCurve -> s`ShimTopCurve | %o, %o > ];", quotient_list[6][#quotient_list[6]],quotient_list[6][#quotient_list[6]]));
-             Write(filename,"return s;");
-
-        end if;*/
-
-
-/*
-intrinsic WriteShimToFile(D::RngIntElt,N::RngIntElt) -> Any
-  {}
-  print "computing GYData";
-  GY:=GYData(D,N);
-  print "making data-quotient list";
-  list:=DataToQuotientList(GY);
-  print "making ShimDB object";
-  return MakeShimDBObject(list);
-end intrinsic;
-*/
-
-
-/*          for second_quotient_curve in curve_quotients do
-            if (quotient_list[1] subset second_quotient_curve[1])
-              and (Genus(second_quotient_curve[2]) ne 0) then
-
-              inv_numbers:=second_quotient_curve[1];
-              qqquotient_curve:=second_quotient_curve[2];
-              qqquotient_rank:=second_quotient_curve[3];
-              qqquotient_proj:=second_quotient_curve[4];
-
-              if Genus(qqquotient_curve) eq 1 and qqquotient_rank eq 0 then
-                ;
-              elif Genus(qqquotient_curve) eq 2 and qqquotient_rank eq 0 then
-
-                simp,map := SimplifiedModel(qqquotient_curve);
-                points_simp := Chabauty0(Jacobian(simp));
-                pointsG2quotient := [ Inverse(map)(P) : P in points_simp ];
-                points_top_curve:=Set([ Difference(Pullback(qqquotient_proj,qqquotient_curve!Q), BaseScheme(qqquotient_proj)) : Q in pointsG2quotient ]);
-
-                inv_numbers; qqquotient_curve;
-                points_top_curve;
-                //quotient_proj(Setseq(Setseq(points_top_curve)[1])[1]);
-
-              end if;
-            end if;
-          end for;
-
-          second_quotient_curves:=[]
-
-          quotient_automorphisms:=Automorphisms(quotient_curve);
-          quotientquotients:=< CurveQuotient(AutomorphismGroup(quotient_curve,[aut])) : aut in quotient_automorphisms >;
-          quotientquotients:=< CC : CC in quotientquotients | Genus(CC) eq 2 >;
-          quo_pullbacks:=[];
-          for D in curve_quotients do
-            if CrvHyp eq Type(D[2]) and Genus(D[2]) eq 2 and D[3] eq 0 then
-              for CC in quotientquotients do
-                if IsIsomorphic(D[2],CC) then
-                  Append(~quo_pullbacks,CC);
-                end if;
-              end for;
-            end if;
-          end for;
-
-          quo_pullbacks:=&cat[ [ CC : CC in quotientquotients | IsIsomorphic(D[2],CC) ]
-           : D in curve_quotients | (Integers()!D[3] eq 0) and Genus(D[2]) eq 2 ];
-          if quo_pullbacks ne [] then
-            genus2quotient:=quo_pullbacks[1];
-
-            simp,map := SimplifiedModel(genus2quotient);
-            points_simp := Chabauty0(Jacobian(simp));
-            pointsG2quotient := [ Inverse(map)(P) : P in points_simp ];
-            points:=Set([ RationalPoints(Difference(Pullback(proj,Cquo!Q), BaseScheme(proj))) : Q in pointsG2quotient ]);
-            quotient_curve;
-
-          end if;
-        end if;
-      end if;
-    end for;
-
-
-
-
-
-
-        filename:=Sprintf("ShimDB/Shim-X(%o,%o)-<w%o>-g%o.m",curve_data[1],curve_data[2],wd[1],Cquo_genus);
-        Write(filename,"R<x>:=PolynomialRing(Rationals());\n");
-
-        if Cquo_genus eq 0 then
-
-
-        elif Cquo_genus eq 1 then
-
-        else
-          //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
-          Write(filename,"RF := recformat< n : Integers(), ShimDiscriminant, ShimLevel,  ShimAtkinLehner, ShimEquation, ShimGenus,
-          ShimInfinitelyManyPoints, ShimHasAdelicPoints, ShimRepresentsSurface, ShimPointSearch, ShimCMPoints >;");
-          Write(filename,"s := rec< RF | >;\n");
-
-          Write(filename,Sprintf("%o %o;", "s`ShimDiscriminant := ", curve_data[1]));
-          Write(filename,Sprintf("%o %o;", "s`ShimLevel := ", curve_data[2]));
-          Write(filename,Sprintf("%o %o;", "s`ShimAtkinLehner := ", wd[1]));
-          Write(filename,Sprintf("%o %o;", "s`ShimEquation := ", fx));
-          Write(filename,Sprintf("%o %o;", "s`ShimGenus := ", Cquo_genus));
-          Write(filename,Sprintf("%o %o;", "s`ShimAnalyticRank := ", rank));
-          Write(filename,Sprintf("%o %o;", "s`ShimHasAdelicPoints := ", RSY));
-          Write(filename,Sprintf("%o %o;", "s`ShimRepresentsSurface := ", ModuliPoint));
-          Write(filename,Sprintf("%o %o;", "s`ShimPointSearch := ", points));
-          Write(filename,Sprintf("%o %o;", "s`ShimChabauty := ", chabauty));
-          Write(filename,Sprintf("%o %o\n;", "s`ShimCMPoints := ", CMpoints));
-          Write(filename,"return s;");
-        end if;
-
-          //if Cquo_genus eq 0 then
-            //printf "& & $w_{%o}$ & %o & %o & %o & %o & %o & %o & $%o$ \\\\ \n", wd[1], Cquo_genus, groupstructure, RSY, ModuliPoint, points, CMpoints, fx;
-          //elif Cquo_genus eq 1 then
-          //printf "& & $w_{%o}$ & %o & $\\Z^%o + %o$ & %o & %o & %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), rank, torsion, RSY, ModuliPoint, points, CMpoints, fx;
-          //else
-          //  printf "& & $w_{%o}$ & %o & %o & %o & %o & %o %o & %o & $y^2 = %o$ \\\\ \n", wd[1], Genus(Cquo), groupstructure, RSY, ModuliPoint, chabauty, points, CMpoints, fx;
-          //end if;
-
-    end if;
-  end for;
-
-  return "";
-
-end function;*/

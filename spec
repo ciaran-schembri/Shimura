@@ -6,6 +6,7 @@
   addattribute.m
   CM1equation.m
   CMfunctions.m
+  ranks.m
 
   lmfdb_upload
   {

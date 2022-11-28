@@ -11,7 +11,7 @@ for filename in ShimDBFilenames() do
         D:=s`ShimDiscriminant; N:=s`ShimLevel;
       //if D ne 6 or [D,N,W[2]] notin [[21,2,42],[26,3,78], [26,3,39],
         //[6,17,51],[6,19,38],[6,19,6],[6,29,87],[6,31,62]] then
-        if N eq 1 and [D,W[2]] notin [[35,5],[51,17]] then //and [D,W[2]] in [[134,67],[159,53],[206,103],[38,19],[51,17],[62,31],[69,23],[86,43],[87,29],[93,93],[94,47]] then
+        if N eq 1 and [D,W[2]] notin [[93,93],[35,5],[51,17]] then //and [D,W[2]] in [[134,67],[159,53],[206,103],[38,19],[51,17],[62,31],[69,23],[86,43],[87,29],[93,93],[94,47]] then
         D; N; W;
         s`ShimRationalPoints;
         cmpr,cmun:=RationalCMPoints(D,N,W[2]);

@@ -1,7 +1,13 @@
 
 
 intrinsic RationalPointsNaive(X::CrvHyp) -> Any
-  {first try at finding rational points}
+  {Input:
+    X - a hyperelliptic curve
+  Ouput:
+    Set - A set of (possibly empty) rational points on the curve X
+    true or false - Whether the set above is provably all of X(Q)
+    note - The method that was used to prove the points are X(Q). "Inconclusive"
+    means the second value is false}
   C,cm:=SimplifiedModel(X);
   pointsearch := Set(Setseq(Points(C : Bound:=30000)));
   if pointsearch eq {} then
@@ -65,19 +71,13 @@ end intrinsic;
 
 
 intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::List) -> SetEnum
-  {Given projection equations proj : X->X/<W>,
+  {Input:
+    proj - defining equations for the map X->X/<W>
+    quotient_points - a list of points on the curve X/<W>
+  Ouput:
+    The pullpack of the points quotient_points along proj as a list.
+  Given projection equations proj : X->X/<W>,
   pullback quotient_points to X}
-/*  S:= [ P : P in quotient_points ];
-  if Type(Codomain(proj)) eq CrvHyp then
-    inf_pts:=PointsAtInfinity(Codomain(proj));
-    assert #inf_pts le 2;
-    if #inf_pts eq 2 then
-      Sinf:=[ Q : Q in inf_pts | Eltseq(Q) in S ];
-      if #Sinf eq 2 then
-        Exclude(~S,Eltseq(inf_pts[1]));
-      end if;
-    end if;
-  end if;*/
 
   list:=[* *];
 
@@ -88,12 +88,6 @@ intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::List) -> Set
     if #Pbar in {2,4} then
       if #Pbar eq 4 then
         assert 0 eq 1;
-        /*if Type(Codomain(proj)) eq CrvHyp then
-          assert P in PointsAtInfinity(Codomain(proj));
-        else
-          assert P[3] eq 0;
-        end if;
-      end if;*/
       else
         assert Dimension(XPScheme) eq 0;
         K:=NumberField(AbsolutePolynomial(Kinit));

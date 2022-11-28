@@ -27,8 +27,46 @@ intrinsic ShimDBFilenames( : version:=2) -> SeqEnum
   ls := Pipe(command, "");
   filenames := Split(ls, "\n");
 
-  atkinlehners:= [  (eval Sprintf("[ %o ]",Split(Split(file,"(")[2],")")[1])) cat (eval Split(Split(file,"-")[4],".")[1]) : file in filenames ];
-  ParallelSort(~atkinlehners, ~filenames);
+  //DNatkinlehners:= [  (eval Sprintf("[ %o ]",Split(Split(file,"(")[2],")")[1])) cat (eval Split(Split(file,"-")[4],".")[1]) : file in filenames ];
+
+  sort_files:=function(file1,file2);
+    A:=(eval Sprintf("[ %o ]",Split(Split(file1,"(")[2],")")[1])) cat (eval Split(Split(file1,"-")[4],".")[1]);
+    B:=(eval Sprintf("[ %o ]",Split(Split(file2,"(")[2],")")[1])) cat (eval Split(Split(file2,"-")[4],".")[1]);
+    if A[2] eq 1 and B[2] ne 1 then
+      return -1;
+    elif B[2] eq 1 and A[2] ne 1 then
+      return 1;
+    end if;
+
+    if A[1] lt B[1] then
+      return -1;
+    elif A[1] gt B[1] then
+      return 1;
+    end if;
+
+    if A[1] eq B[1] and A[2] ne B[2] then
+      return A[2] - B[2];
+    end if;
+
+    C:=[ A[i] : i in [3..#A] ];
+    D:=[ B[i] : i in [3..#B] ];
+
+    if #C lt #D then
+      return -1;
+    elif #D lt #C then
+      return 1;
+    end if;
+
+    as:=[ i : i in [1..#C] | C[i] ne D[i] ];
+    if C[as[1]] gt D[as[1]] then
+      return 1;
+    else
+      return -1;
+    end if;
+
+  end function;
+
+  Sort(~filenames,sort_files);
 
   return filenames;
 end intrinsic;
@@ -52,32 +90,40 @@ intrinsic ShimDBWrite(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
 filename:=ShimDBFilename(D,N,W :version:=1);
 attr:=ShimDBRead(filename : version:=1);
 
-if attr`ShimAtkinLehner ne [1] then
-//new_attributes:= [ <"ShimRationalPoints","\"{}\"">, <"ShimTest", "\"NA\""> ];
-  X:=attr`ShimModel;
-  ShimRationalPoints, ShimPointsProvedCorrect, ShimPointsNotes := RationalPointsAnyGenus(X);
-  ShimPointsEverywhereLocally:= HasAdelicPointsAnyGenus(X);
-  if Type(ShimRationalPoints) eq SetEnum then
-    points:=Set([ Eltseq(P) : P in ShimRationalPoints]);
-  elif Type(ShimRationalPoints) eq MonStgElt then
-    points:=Sprintf("\"%o\"",ShimRationalPoints);
-  else
-    assert Type(ShimRationalPoints) eq BoolElt;
-    assert Genus(X) eq 0;
-    points:=ShimRationalPoints;
-  end if;
+  if attr`ShimAtkinLehner ne [1] then
+  //new_attributes := [ <"ShimRationalPoints","\"{}\"">, <"ShimTest", "\"NA\""> ];
+    X:=attr`ShimModel;
+    ShimRationalPoints, ShimPointsProvedCorrect, ShimPointsNotes := RationalPointsAnyGenus(X);
+    ShimPointsEverywhereLocally:= HasAdelicPointsAnyGenus(X);
+    if Type(ShimRationalPoints) eq SetEnum then
+      points:=Set([ Eltseq(P) : P in ShimRationalPoints]);
+    elif Type(ShimRationalPoints) eq MonStgElt then
+      points:=Sprintf("\"%o\"",ShimRationalPoints);
+    else
+      assert Type(ShimRationalPoints) eq BoolElt;
+      assert Genus(X) eq 0;
+      points:=ShimRationalPoints;
+    end if;
 
-  //if Genus(X) ge 2 then
-    //ShimRationalPoints:= Sprintf("s`ShimModel!%o", ShimRationalPoints);
-  new_attributes:=
-  [
-  <"ShimRationalPoints", Sprint(points)>,
-  <"ShimPointsProvedCorrect", Sprint(ShimPointsProvedCorrect)>,
-  <"ShimPointsNotes", Sprintf("\"%o\"",ShimPointsNotes)>,
-  <"ShimPointsEverywhereLocally", Sprint(ShimPointsEverywhereLocally)>
-  ];
-  ShimAddAttributes(filename, new_attributes);
-end if;
+    //if Genus(X) ge 2 then
+      //ShimRationalPoints:= Sprintf("s`ShimModel!%o", ShimRationalPoints);
+    new_attributes:=
+    [
+    <"ShimRationalPoints", Sprint(points)>,
+    <"ShimPointsProvedCorrect", Sprint(ShimPointsProvedCorrect)>,
+    <"ShimPointsNotes", Sprintf("\"%o\"",ShimPointsNotes)>,
+    <"ShimPointsEverywhereLocally", Sprint(ShimPointsEverywhereLocally)>
+    ];
+    ShimAddAttributes(filename, new_attributes);
+  else
+    new_attributes := [
+      <"ShimRationalPoints","{}">,
+      <"ShimPointsProvedCorrect", "true">,
+      <"ShimPointsNotes", "\"NA\"">,
+      <"ShimPointsEverywhereLocally", "\"NA\"">
+       ];
+    ShimAddAttributes(filename, new_attributes);
+  end if;
 
 return "";
 

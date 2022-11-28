@@ -6,13 +6,13 @@ intrinsic CMOrder(s::RngIntElt,f::RngIntElt) -> Any
   {return the CM order in Q(sqrt(-s)) of conductor f}
   discs_conds:=  [
     [ 3, 1 ],
-    //[ 3, 2 ],
+    [ 3, 2 ],
     [ 3, 3 ],
     [ 3, 4 ],
     [ 3, 5 ],
     [ 3, 7 ],
     [ 4, 1 ],
-    //[ 4, 2 ],
+    [ 4, 2 ],
     [ 4, 3 ],
     [ 4, 4 ],
     [ 4, 5 ],
@@ -75,13 +75,13 @@ intrinsic CMOrdersList() -> Any
   //discs_Elkies:=[4,8,24,84,40,51,19,120,52,132,75,168,43,228,88,123,100,147,312,67,148,372,408,267,232,708,163];
   discs_conds:=  [
     [ 3, 1 ],
-    //[ 3, 2 ],
+    [ 3, 2 ],
     [ 3, 3 ],
     [ 3, 4 ],
     [ 3, 5 ],
     [ 3, 7 ],
     [ 4, 1 ],
-    //[ 4, 2 ],
+    [ 4, 2 ],
     [ 4, 3 ],
     [ 4, 4 ],
     [ 4, 5 ],
@@ -184,9 +184,28 @@ end intrinsic;
 
 intrinsic CMPointsCardinality(R::RngOrd, D::RngIntElt,N::RngIntElt) -> RngIntElt
   {the number of R-CM points on X(D,N)}
+  //ONLY WORKS FOR N=1 AT PRESENT
+  f:=Integers()!Index(MaximalOrder(R),R);
+  assert (R meet f*MaximalOrder(R)) eq Conductor(R);
   discR:=Integers()!Discriminant(R);
   DNast:=DEE(R,D)*ENNstar(R,N);
   Cl,m1:=RingClassGroup(R);
+
+  if not(IsSplittingField(NumberField(R),QuaternionAlgebra(D))) then
+    return 0;
+  end if;
+
+  sigma:= PrimeDivisors(D);
+  if [ p : p in sigma | IsDivisibleBy(f,p) ] ne [] then
+    return 0;
+  end if;
+
+  assert [ p : p in sigma | IsDivisibleBy(f,p) ] eq [];
+  k:=KroneckerCharacter(Discriminant(NumberField(R)));
+  if [ p : p in sigma | k(p) eq 1 ] ne [] then
+    return 0;
+  end if;
+
   if IsDivisibleBy(discR,Integers()!((D*N)/DNast)) then
     return (2^(#PrimeDivisors(DEE(R,D)*ENN(R,N))))*(#Cl);
   else
@@ -230,13 +249,12 @@ end for;
 
 
 
-
 intrinsic CMFieldOfDefinitionALQuotient(R::RngOrd, D::RngIntElt, N::RngIntElt, m::RngIntElt) -> RngOrd
   {D discriminant, N level. For any point Q on the the Atkin-Lehner Quotient X(D,N)/w_m
   find the field of definition of the R-CM point Q. Note it's independent of Q. R has to be an order in a number field}
   assert IsDivisibleBy(D*N,m);
-  if not(IsSplittingField(NumberField(R),QuaternionAlgebra(D))) then
-    return "CM order not contained in quaternion algebra";
+  if CMPointsCardinality(R,D,N) eq 0 then
+    return "No CM points for this order";
   else
     mr:= GCD(m, Integers()!(D*N/(DEE(R,D)*ENN(R,N))) );
     s:=-FundamentalDiscriminant(Discriminant(NumberField(R)));
@@ -440,6 +458,16 @@ intrinsic RationalCMPointsCardinalityAllOrders(D::RngIntElt, N::RngIntElt, m::Rn
   return no;
 end intrinsic;
 
+intrinsic CMPointsCardinalityAllOrders(D::RngIntElt, N::RngIntElt) -> RngIntElt
+  {total number of CM points for all orders}
+  cm_list:=CMOrdersList();
+  no:=0;
+  for R in cm_list do
+    no:=no+CMPointsCardinality(R[1],D,N);
+  end for;
+  return no;
+end intrinsic;
+
 intrinsic RationalCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> List
   {Given a complete set of CM points on X(D,N)/<w_m> we find which ones are CM}
   cm_list:=CMOrdersList();
@@ -497,6 +525,12 @@ intrinsic RationalCMPoints(D::RngIntElt,N::RngIntElt,m::RngIntElt) -> List
         Append(~Qpts,QP_K[1]);
         Append(~points_init,Qpts);
       end if;
+    else
+      assert D eq 93 and m eq 93;
+      Qpts:=[* *];
+      Append(~Qpts,Q);
+      Append(~Qpts,-4);
+      Append(~points_init,Qpts);
     end if;
   end for;
 
@@ -696,6 +730,11 @@ intrinsic PointsRepresentatingPQMSurface(D::RngIntElt,N::RngIntElt,m::RngIntElt)
     end if;
   end for;
   return Set(list);
+end intrinsic;
+
+intrinsic ReplaceAll(string::MonStgElt, char1::MonStgElt, char2::MonStgElt) -> MonStgElt
+  {Replace all instances of the string char1 with char2 in string}
+  return Pipe(Sprintf("sed \"s/%o/%o/g\"", char1, char2), string);
 end intrinsic;
 
 
