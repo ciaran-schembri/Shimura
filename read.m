@@ -83,6 +83,11 @@ intrinsic ShimDBFilename(D::RngIntElt,N::RngIntElt,W::SeqEnum :version:=2) -> An
   end for;
 end intrinsic;
 
+intrinsic ShimDBRecords( : version:=2) -> Any
+  {return all records in the database}
+  return [ ShimDBRead(filename) : filename in ShimDBFilenames(:version:=version) ];
+end intrinsic;
+
 
 intrinsic ShimDBWrite(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
   {Given a database object from version 1, compute the set of rational points
