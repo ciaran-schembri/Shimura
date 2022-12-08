@@ -31,19 +31,19 @@ To load the data associated to the curve X_0(D,N)/W;
 s:=ShimDBRecord(D,N,W);
 ```
 
-Each curve/file has a record which holds information about the curve, the attributes of the record are
+Each curve/file has a record which holds information about the curve, the attribute names of the record are
 ```
-ShimLabel,
-ShimDiscriminant,
-ShimLevel,
-ShimAtkinLehner,
-ShimGenus,
-ShimModel,
-ShimTopCurve,
-ShimProjectionEquations,
-ShimRationalPoints,
-ShimPointsProvedCorrect,
-ShimPointsNotes,
+ShimLabel
+ShimDiscriminant
+ShimLevel
+ShimAtkinLehner
+ShimGenus
+ShimModel
+ShimTopCurve
+ShimProjectionEquations
+ShimRationalPoints
+ShimPointsProvedCorrect
+ShimPointsNotes
 ShimPointsEverywhereLocally
 ```
 
@@ -53,8 +53,8 @@ s:=ShimDBRead(filename);
 ```
 
 To load all filenames or records in the database use
-ShimDBFilenames()
-ShimDBRecords()
+ShimDBFilenames() or
+ShimDBRecords() respectively.
 
 As an example, to see all Hasse principle violations we can do
 ```
