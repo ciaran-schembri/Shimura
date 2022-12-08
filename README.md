@@ -11,8 +11,8 @@ A file for each quotient curve can be found in the folder ShimDB-v2
 The name of each file will be of the form
 Shim-X(D,N)-g?-W.m
 where
-D - is the discriminant of the quaternion algebra;
-N - is the level;
+* D - is the discriminant of the quaternion algebra;
+* N - is the level;
 g? - is the genus of the curve;
 W - is a list of numbers representing the group of Atkin-Lehner involutions.
 
