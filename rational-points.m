@@ -7,7 +7,10 @@ intrinsic RationalPointsNaive(X::CrvHyp) -> Any
     Set - A set of (possibly empty) rational points on the curve X
     true or false - Whether the set above is provably all of X(Q)
     note - The method that was used to prove the points are X(Q). "Inconclusive"
-    means the second value is false}
+    means the second value is false
+
+    This function attempts to compute the set of rational points on the curve by
+    various methods.}
   C,cm:=SimplifiedModel(X);
   pointsearch := Set(Setseq(Points(C : Bound:=30000)));
   if pointsearch eq {} then
@@ -75,9 +78,7 @@ intrinsic PullbackPointsWithEquation(proj::MapSch, quotient_points::List) -> Set
     proj - defining equations for the map X->X/<W>
     quotient_points - a list of points on the curve X/<W>
   Ouput:
-    The pullpack of the points quotient_points along proj as a list.
-  Given projection equations proj : X->X/<W>,
-  pullback quotient_points to X}
+    The pullpack of the points quotient_points along proj as a list.}
 
   list:=[* *];
 
@@ -134,8 +135,18 @@ end intrinsic;
 
 
 
-intrinsic PullbackPointsFromQuotient(X::.) -> Any
-  {Given a projection X->X/<w>, if X/<w> has a finite number of points, try to pull them back to X.}
+intrinsic PullbackPointsFromQuotient(X::CrvHyp) -> Any
+  {Input:
+    X - a hyperelliptic curve
+  Output:
+    Set - A set of (possibly empty) rational points on the curve X
+    true or false - Whether the set above is provably all of X(Q)
+    note - The method that was used to prove the points are X(Q). "Inconclusive"
+    means the second value is false
+
+  The intrinsic computes all quotients X/W of the curve X where W is a group of
+  automorphisms, if one of the quotients has a finite set of points one can pull
+  these back to obtain X(Q).}
   if Genus(X) lt 2 then
     return {}, false, "inconclusive";
   end if;
@@ -178,37 +189,10 @@ intrinsic PullbackPointsFromQuotient(X::.) -> Any
   return shimpoints, shimproven, shimnotes;
 end intrinsic;
 
-/*
-      if Genus(Q) eq 1 then
-
-        continue;
-      end if;
-    	r := RankBounds(Jacobian(Q));
-      if r lt Genus(Q) then
-      	print Q;
-      	b,im_pts := RationalPointsNaive(QQ);
-      	pts := [];
-      	for k in [1..#im_pts] do
-          R := RationalPoints(Difference(Pullback((m*map),im_pts[k]), BaseScheme(m)));
-          S:=IndexedSetToSequence(R);
-          pts := pts cat S; //TODO: remove dulplicates
-        end for;
-        if b then
-          break i;
-        end if;
-      end if;
-  end for;
-  if b then
-  return true,pts;
-  else print "keep looking";
-  	return false,{};
-  end if;
-end intrinsic;
-*/
-
 
 intrinsic RationalPointsGenus0(C::CrvCon) -> Any
- {For a Genus 0 curve, return whether it has a rational point, also if it is proven and any notes}
+ {For a Genus 0 curve, return whether it has a rational point,
+ also if it is proven and any notes}
  shimpoints:=HasRationalPoint(C);
  shimproven:=true;
  shimnotes:="NA";
@@ -217,8 +201,8 @@ end intrinsic;
 
 
 intrinsic RationalPointsGenus1(X::Crv) -> Any
- {For a Genus 1 curve, return whether it has a rational point; if it does return the mordell-weil group.
-  also if it is proven and any notes}
+ {For a genus 1 curve, if it has finitely many rational points then return the
+ set of points, otherwise the mordell-weil group will be returned as a string}
 
   XG1:=GenusOneModel(X);
   MinXG1, psi1:=Minimise(XG1);
@@ -252,8 +236,7 @@ intrinsic RationalPointsGenus1(X::Crv) -> Any
         shimproven:=true;
         shimnotes:="pullback of torsion";
       else
-  //not sure if this is proved
-        shimpoints:="NA";
+        shimpoints:="has infinitely many points";
         shimproven:=true;
         shimnotes:= Sprintf("DirectProduct(FPGroup(FreeAbelianGroup(%o)), FPGroup(Group(%o)))", rank, Sprint(GroupName(T)) );
       end if;
@@ -280,23 +263,10 @@ intrinsic RationalPointsAnyGenus(X::.) -> Any
   end if;
 end intrinsic;
 
-intrinsic RationalPointsAttempt(Cx::CrvHyp) -> Any
-  {}
-  C:=SimplifiedModel(Cx);
-b,pts := RationalPointsNaive(C);
-if b then
-    return true,pts;
-else
-    b,pts := PullbackPointsFromQuotient(C);
-    return b,pts;
-end if;
-if not b then
-  return "points not known";
-end if;
-end intrinsic;
+
 
 intrinsic HasAdelicPointsAnyGenus(X::.) -> Any
-  {Decide if a curve has points everywhere locally. Need to careful about types}
+  {Return if a curve has points everywhere locally.}
   if Genus(X) eq 0 then
     if HasRationalPoint(X) then
       return true;
@@ -320,7 +290,7 @@ end intrinsic;
 
 
 intrinsic ChangeRingMap(map::MapSch,K::.) -> MapSch
-  {Change (extend) the base ring of a map of schemes}
+  {Change the base ring of a map of schemes to K}
   D:=Domain(map);
   DK:=ChangeRing(D,K);
   C:=Codomain(map);
@@ -334,17 +304,17 @@ intrinsic ChangeRingMap(map::MapSch,K::.) -> MapSch
   return map< DK -> CK | eqnsK >;
 end intrinsic;
 
-intrinsic CoercePointAnyField(C::.,P::SeqEnum) -> Pt
+intrinsic CoercePointAnyField(X::.,P::SeqEnum) -> Pt
   {Given a point P on the curve over an extension, coerce the
   point onto the curve over that extension}
-  CK:=ChangeRing(C,Parent(P[1]));
-  return CK!P;
+  XK:=ChangeRing(X,Parent(P[1]));
+  return XK!P;
 end intrinsic;
 
 
 intrinsic MapPointAnyField(map::MapSch,P::Pt) -> Pt
-  {Given a point in the codomain of the map over some extension field,
-  apply the map to this point. Change parent of point to be rationals if possible}
+  {Given a point in the codomain of the map over some extension field, apply the
+  map to this point. Change parent of point to be rationals if possible}
 
   K:=Parent(Eltseq(P)[1]);
   P1:=Domain(ChangeRingMap(map,K))!Eltseq(P);
@@ -355,15 +325,6 @@ intrinsic MapPointAnyField(map::MapSch,P::Pt) -> Pt
   CF:=ChangeRing(Codomain(map),F);
   FP:=CF!([F!a : a in Eltseq(new_pt)]);
   return FP;
-
-/*  try
-    for a0 in Eltseq(new_pt) do
-      b0:=Rationals()!a0;
-    end for;
-    return ChangeRingMap(Codomain(map),Rationals())![ Rationals()!a : a in Eltseq(new_pt)];
-  catch e
-    return new_pt;
-  end try;*/
 
 end intrinsic;
 
@@ -387,56 +348,3 @@ intrinsic HyperellipticAtkinLehner(D::RngIntElt, N::RngIntElt) -> SeqEnum
     end if;
   end for;
 end intrinsic;
-
-/*intrinsic ShimuraCMPoints(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> SeqEnum
-  {Given X(D,N)/W, return the CM points on this curve by pulling back the
-  CM points from the hyperelliptic quotient to the top curve and then projecting}
-
-  Whyp:=HyperellipticAtkinLehner(D,N);
-  shyp:=ShimuraCurveQuotientData(D,N,Whyp);
-  hyp_proj:=shyp`ShimProjectionEquations;
-  cm_hyp:={shyp`ShimModel![0,0,1]};
-  cm_topcurve:=PullbackPointsWithEquation(hyp_proj,cm_hyp);
-
-  s:=ShimuraCurveQuotientData(D,N,W);
-  proj:=s`ShimProjectionEquations;
-
-  cm_projected:=<>;
-  for Q in cm_topcurve do
-    Append(~cm_projected,MapPointAnyField(proj,Q));
-  end for;
-
-  return cm_projected;
-end intrinsic;*/
-
-
-
-/*
-//Tests
-
-//no points everywhere locally
-C1 := HyperellipticCurve(3*x^6+2);
-RatFirstAttempt(C1);
-
-//two cover descent works
-C2:=HyperellipticCurve(2*x^6+x+2);
-RatFirstAttempt(C2);
-
-//Chabauty0 works
-C3 := HyperellipticCurve(x^6+1);
-RatFirstAttempt(C3);
-
-//Chabauty works for 1 < 2
-C4 := HyperellipticCurve(x^6+x^2+2);
-RatFirstAttempt(C4);
-
-//keep looking
-C5 := HyperellipticCurve(x^6+x^2+1);
-RatFirstAttempt(C5);
-
-C6 := HyperellipticCurve(x^12+1);
-RatAttempt(C6);
-
-C7 := HyperellipticCurve(x^12+x^4+1);
-SmallerRankQuotient(C7);
-*/

@@ -72,7 +72,7 @@ intrinsic ShimDBFilenames( : version:=2) -> SeqEnum
 end intrinsic;
 
 intrinsic ShimDBFilename(D::RngIntElt,N::RngIntElt,W::SeqEnum :version:=2) -> Any
-  {}
+  {return the filename associated to D, N and W}
   list:=ShimDBFilenames( :version:=version);
   for L in list do
     s:=ShimDBRead(L : version:=version);
@@ -85,13 +85,14 @@ end intrinsic;
 
 
 intrinsic ShimDBWrite(D::RngIntElt,N::RngIntElt,W::SeqEnum) -> Any
- {}
+  {Given a database object from version 1, compute the set of rational points
+  on the curve and create a new database object in version 2 including the
+  set of rational points.}
 
-filename:=ShimDBFilename(D,N,W :version:=1);
-attr:=ShimDBRead(filename : version:=1);
+  filename:=ShimDBFilename(D,N,W :version:=1);
+  attr:=ShimDBRead(filename : version:=1);
 
   if attr`ShimAtkinLehner ne [1] then
-  //new_attributes := [ <"ShimRationalPoints","\"{}\"">, <"ShimTest", "\"NA\""> ];
     X:=attr`ShimModel;
     ShimRationalPoints, ShimPointsProvedCorrect, ShimPointsNotes := RationalPointsAnyGenus(X);
     ShimPointsEverywhereLocally:= HasAdelicPointsAnyGenus(X);
@@ -105,8 +106,6 @@ attr:=ShimDBRead(filename : version:=1);
       points:=ShimRationalPoints;
     end if;
 
-    //if Genus(X) ge 2 then
-      //ShimRationalPoints:= Sprintf("s`ShimModel!%o", ShimRationalPoints);
     new_attributes:=
     [
     <"ShimRationalPoints", Sprint(points)>,

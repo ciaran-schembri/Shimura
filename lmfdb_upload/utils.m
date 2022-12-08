@@ -1,5 +1,11 @@
 // utility functions from Drew
 
+
+intrinsic ReplaceAll(string::MonStgElt, char1::MonStgElt, char2::MonStgElt) -> MonStgElt
+  {Replace all instances of the string char1 with char2 in string}
+  return Pipe(Sprintf("sed \"s/%o/%o/g\"", char1, char2), string);
+end intrinsic;
+
 intrinsic putrecs(filename::MonStgElt, S::SeqEnum[SeqEnum[MonStgElt]] : Delimiter:="|") -> RngIntElt
   {Given a list of lists of strings, creates a Delimiter delimited file with one list per line, returns number of records written.}
   fp := Open(filename,"w");

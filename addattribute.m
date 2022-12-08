@@ -1,9 +1,10 @@
 
 intrinsic ShimAddAttributes(filename::MonStgElt, attributes::SeqEnum) -> Any
-  {Take the filename of a curve as input, duplicate the file in version 1 of the database
-  and make a new copy in version 2. Then the intrinsic writes the new attributes into the
-  new file in version 2. The attributes are of the form [<Shim, data>],
-  with "Shim" the name of the attribute and "data" the attribute as a string.}
+  {Take the filename of a curve as input, duplicate the file in version 1 of the
+  database and make a new copy in version 2. Then the intrinsic writes the new
+  attributes into the new file in version 2. The attributes are of the form
+  [<Shim, data>], with "Shim" the name of the attribute and "data" the attribute
+   as a string.}
   file:=Sprintf("ShimDB-v1/%o",filename);
 
   new_file:=Sprintf("ShimDB-v2/%o",filename);

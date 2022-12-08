@@ -2,7 +2,7 @@
   read.m
   functions.m
   thelist.m
-  ProtoButton.m
+  rational-points.m
   addattribute.m
   CM1equation.m
   CMfunctions.m
