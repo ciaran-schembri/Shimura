@@ -4,9 +4,9 @@
   thelist.m
   rational-points.m
   addattribute.m
-  CM1equation.m
   CMfunctions.m
   ranks.m
+  descent-points.m
 
   lmfdb_upload
   {
