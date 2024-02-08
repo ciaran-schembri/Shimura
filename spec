@@ -5,7 +5,6 @@
   rational-points.m
   addattribute.m
   CMfunctions.m
-  ranks.m
   descent-points.m
 
   lmfdb_upload

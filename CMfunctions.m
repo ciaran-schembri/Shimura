@@ -389,11 +389,16 @@ end intrinsic;
 intrinsic RationalCMPointsCardinalityAllOrders(D::RngIntElt, N::RngIntElt, m::RngIntElt) -> RngIntElt
   {total number of CM points for all orders on X_0(D,N)/w_m}
   cm_list:=CMOrdersList();
+  CMOrders:=[];
   no:=0;
   for R in cm_list do
-    no:=no+RationalCMPointsCardinality(R[1],D,N,m);
+    CMno:=RationalCMPointsCardinality(R[1],D,N,m);
+    if CMno ne 0 then 
+      Append(~CMOrders,<R[1],CMno>);
+      no:=no+CMno;
+    end if;
   end for;
-  return no;
+  return no,CMOrders;
 end intrinsic;
 
 intrinsic CMPointsCardinalityAllOrders(D::RngIntElt, N::RngIntElt) -> RngIntElt
